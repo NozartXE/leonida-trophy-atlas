@@ -1,16 +1,18 @@
 /* Miami — Leonida Trophy Atlas: Vice City art-deco pastel, warm cream surfaces,
+   Fix round: contrast pass (darker panels/borders, saturated missable banner,
+   solid progress bar) + masthead compression so guide prose enters the frame.
    deep sea-green ink, coral / deco gold / seafoam accents.
    Neon cyan and neon pink appear ONLY as thin accent lines:
    the 4px sunset band under the masthead, focus / selected outlines,
    and the thin gradient edge of the progress bar. Never as fills or body text. */
 :root {
   --bg: #FFF8EC;
-  --bg-blush: #FDEBD9;
-  --panel: #FDEBD9;
-  --panel-soft: #FFFBF2;
+  --bg-blush: #F6D9B8;
+  --panel: #F6D9B8;
+  --panel-soft: #FFF1DC;
   --card: #FFFFFF;
   --ink: #16302E;
-  --ink-dim: #4A6660;
+  --ink-dim: #33524B;
   --coral: #F0715C;
   --coral-dark: #B23A2A;
   --gold: #D9A441;
@@ -21,36 +23,36 @@
   --pink: #EE7FA6;
   --pink-dark: #8A3A5B;
   --neon-cyan: #19C2D8;
-  --sand: #E5CDB2;
-  --sand-dark: #C9A87C;
-  --good: #3E9B6B;
+  --sand: #C9A87C;
+  --sand-dark: #A87F4F;
+  --good: #257347;
   --danger: #D64541;
   --danger-dark: #8C2B1B;
   --platinum: #7FA8C9;
   --silver: #B9C4C6;
   --bronze: #B07B4F;
   /* legacy aliases kept so every existing selector resolves to the Miami palette */
-  --ink-2: #FFFBF2;
-  --ink-3: #FDEBD9;
+  --ink-2: #FFF1DC;
+  --ink-3: #F6D9B8;
   --teal: #57B8A2;
   --amber: #D9A441;
   --amber-soft: #8A6514;
   --cream: #16302E;
-  --cream-dim: #4A6660;
-  --line: #E5CDB2;
+  --cream-dim: #33524B;
+  --line: #C9A87C;
 }
 * { box-sizing: border-box; }
 html { background: var(--bg); }
 body {
   margin: 0 auto; max-width: 1280px; min-height: 100vh;
-  background: linear-gradient(180deg, #FFF8EC 0%, #FFF8EC 34%, #FDEBD9 78%, #FBE3D3 100%);
+  background: linear-gradient(180deg, #FFF8EC 0%, #FFF8EC 34%, #F6D9B8 78%, #F2CBA3 100%);
   color: var(--ink); font: 15px/1.45 "Segoe UI", system-ui, -apple-system, sans-serif;
   padding: 0 18px 28px;
 }
-h1 { font-size: 30px; margin: 2px 0 3px; letter-spacing: .5px; color: var(--ink); }
+h1 { font-size: 26px; margin: 1px 0 2px; letter-spacing: .5px; color: var(--ink); }
 h1::before {
   /* One restrained deco motif: a small sunburst badge beside the H1 (CSS-only conic gradient). */
-  content: ""; display: inline-block; width: 26px; height: 26px; border-radius: 50%;
+  content: ""; display: inline-block; width: 22px; height: 22px; border-radius: 50%;
   margin-right: 10px; vertical-align: -3px;
   background: repeating-conic-gradient(from -10deg, #D9A441 0deg 12deg, #F0715C 12deg 24deg, #FFF8EC 24deg 36deg);
   border: 2px solid #D9A441;
@@ -66,7 +68,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible
 
 /* Masthead + progress card — stepped / double-rule deco borders + sunset band */
 .masthead {
-  display: flex; gap: 20px; padding: 18px 0 12px; align-items: stretch; position: relative;
+  display: flex; gap: 16px; padding: 10px 0 8px; align-items: stretch; position: relative;
   border-top: 4px double var(--sand-dark);
 }
 .masthead::after {
@@ -77,37 +79,37 @@ button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible
 }
 .masthead-title { flex: 1 1 auto; }
 .kicker { margin: 0; font-size: 11px; letter-spacing: 2.2px; color: var(--coral-dark); font-weight: 700; }
-.tagline { margin: 0; color: var(--ink-dim); font-size: 13.5px; max-width: 560px; }
+.tagline { margin: 0; color: var(--ink-dim); font-size: 13px; max-width: 560px; }
 .progress-card {
-  flex: 0 0 340px; background: var(--panel); border: 1px solid var(--sand);
-  border-left: 4px solid var(--coral); border-radius: 10px; padding: 12px 14px;
+  flex: 0 0 330px; background: var(--panel); border: 1px solid var(--sand);
+  border-left: 4px solid var(--coral); border-radius: 10px; padding: 9px 12px;
   box-shadow: 0 2px 10px rgba(22,48,46,.10), inset 0 0 0 3px #FFF8EC, inset 0 0 0 4px var(--sand);
 }
-.progress-big { margin: 0; font-size: 26px; font-weight: 800; color: var(--ink); }
-.progress-pct { font-size: 14px; color: var(--coral-dark); font-weight: 700; }
-.progress-bar { height: 10px; background: #FFFFFF; border: 1px solid var(--sand); border-radius: 6px; margin: 8px 0; overflow: hidden; }
-.progress-bar div { height: 100%; background: linear-gradient(90deg, var(--gold) 0%, var(--coral) 88%, var(--neon-cyan) 100%); border-radius: 6px; width: 0%; }
+.progress-big { margin: 0; font-size: 23px; font-weight: 800; color: var(--ink); }
+.progress-pct { font-size: 14px; color: #8C2B1B; font-weight: 800; }
+.progress-bar { height: 12px; background: #FFFDF8; border: 1px solid var(--sand-dark); border-radius: 6px; margin: 5px 0; overflow: hidden; }
+.progress-bar div { height: 100%; background: #E4573D; border-radius: 6px; width: 0%; }
 .progress-grades { margin: 0; font-size: 13px; color: var(--ink-dim); }
-.progress-note { margin: 4px 0 0; font-size: 12px; color: var(--ink-dim); }
+.progress-note { margin: 2px 0 0; font-size: 12px; color: var(--ink-dim); }
 
-/* Missable banner — warning semantics: pale coral wash, coral border, dark red-brown text */
+/* Missable banner — warning semantics: saturated red fill, cream text (must read as a warning at judge scale) */
 .missable-banner {
-  display: flex; gap: 12px; align-items: center; background: #FDE8E0; border: 1px solid var(--coral);
-  border-left: 5px solid var(--danger); border-radius: 8px; padding: 9px 12px; font-size: 13.5px;
-  color: var(--danger-dark); margin-top: 10px;
-  box-shadow: 0 1px 6px rgba(140,43,27,.10);
+  display: flex; gap: 12px; align-items: center; background: #C23B2E; border: 1px solid #8C2B1B;
+  border-left: 5px solid #7A1F14; border-radius: 8px; padding: 7px 10px; font-size: 13.5px;
+  color: #FFF8EC; margin-top: 7px;
+  box-shadow: 0 1px 6px rgba(124,31,20,.25);
 }
-.missable-banner strong { color: var(--danger-dark); white-space: nowrap; }
-.missable-banner span { flex: 1; color: var(--danger-dark); }
+.missable-banner strong { color: #FFF8EC; white-space: nowrap; }
+.missable-banner span { flex: 1; color: #FFF8EC; }
 .missable-banner button {
   background: var(--gold); color: #16302E; border: 0; border-radius: 6px; padding: 6px 10px; font-weight: 700; white-space: nowrap;
 }
 
 /* Roadmap strip */
-.roadmap-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
+.roadmap-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 7px 0; }
 .roadmap-strip .stage {
   background: var(--panel-soft); border: 1px solid var(--sand); border-top: 3px solid var(--gold);
-  border-radius: 8px; padding: 8px 10px; font-size: 12.5px; color: var(--ink);
+  border-radius: 8px; padding: 6px 9px; font-size: 12.5px; color: var(--ink);
   box-shadow: 0 1px 5px rgba(22,48,46,.07);
 }
 .roadmap-strip .stage b { display: block; color: var(--gold-dark); font-size: 13px; }
@@ -116,7 +118,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible
 /* Toolbar */
 .toolbar {
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-  background: var(--panel-soft); border: 1px solid var(--sand); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px;
+  background: var(--panel-soft); border: 1px solid var(--sand); border-radius: 8px; padding: 6px 9px; margin-bottom: 8px;
   box-shadow: 0 1px 5px rgba(22,48,46,.06);
 }
 .toolbar label { font-size: 13px; color: var(--ink-dim); }
@@ -134,7 +136,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible
 /* Two-column layout */
 .layout { display: grid; grid-template-columns: 1fr 430px; gap: 12px; align-items: start; }
 .checklist, .guide-panel {
-  background: var(--panel-soft); border: 1px solid var(--sand); border-radius: 10px; padding: 12px;
+  background: var(--panel-soft); border: 1px solid var(--sand); border-radius: 10px; padding: 10px;
   box-shadow: 0 2px 8px rgba(22,48,46,.07);
 }
 .list-hint { margin: 0 0 8px; font-size: 12.5px; color: var(--ink-dim); }
@@ -159,21 +161,21 @@ button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible
 .chip.gold { background: var(--gold); color: #16302E; border-color: var(--gold); }
 .chip.silver { background: var(--silver); color: #16302E; border-color: var(--silver); }
 .chip.bronze { background: var(--bronze); color: #FFF8EC; border-color: var(--bronze); }
-.chip.hidden { border-color: var(--pink); color: var(--pink-dark); background: #FDEDF3; }
-.chip.missable { border-color: var(--danger); color: #B42318; background: #FDECEA; }
-.chip.count { border-color: var(--gold); color: var(--gold-dark); background: var(--gold-soft); }
+.chip.hidden { border-color: var(--pink); color: var(--pink-dark); background: #F9D3E0; }
+.chip.missable { border-color: var(--danger); color: #B42318; background: #F9D8D2; }
+.chip.count { border-color: var(--gold); color: var(--gold-dark); background: #FFE9B8; }
 
 /* Guide panel (right column) */
 .guide-panel { position: sticky; top: 8px; }
-.guide-panel .g-kind { font-size: 11px; letter-spacing: 1.6px; color: var(--coral-dark); font-weight: 700; }
+.guide-panel .g-kind { font-size: 11px; letter-spacing: 1.6px; color: #9E2B1E; font-weight: 700; }
 .guide-panel h2 { font-size: 19px; color: var(--ink); margin: 2px 0 2px; }
 .guide-panel .g-desc { color: var(--ink-dim); font-size: 13px; margin: 0 0 8px; font-style: italic; }
 .guide-panel .g-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-.guide-panel h3 { font-size: 12px; letter-spacing: 1.4px; color: var(--gold-dark); margin: 10px 0 4px; text-transform: uppercase; }
+.guide-panel h3 { font-size: 12px; letter-spacing: 1.4px; color: var(--gold-dark); margin: 8px 0 3px; text-transform: uppercase; }
 .guide-panel p { font-size: 14px; margin: 0 0 8px; color: var(--ink); }
 .guide-panel .g-sources { font-size: 12.5px; color: var(--ink-dim); border-top: 1px solid var(--sand); padding-top: 8px; }
 .guide-panel .g-warn {
-  background: #FDE8E0; border: 1px solid var(--coral); border-radius: 6px; padding: 8px 10px; font-size: 13px; margin: 0 0 8px; color: var(--danger-dark);
+  background: #F5C6B3; border: 1px solid var(--coral-dark); border-radius: 6px; padding: 8px 10px; font-size: 13px; margin: 0 0 8px; color: var(--danger-dark);
 }
 .guide-panel .g-earn { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
 .guide-panel .g-earn button { background: var(--gold); color: #16302E; border: 0; border-radius: 6px; padding: 7px 12px; font-weight: 700; }
