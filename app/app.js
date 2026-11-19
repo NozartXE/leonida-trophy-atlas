@@ -16,7 +16,7 @@ import {
   saveCounters, saveEarnedSet,
 } from './state.js';
 import { applyTrophyFilters, displayDescriptionFor, displayNameFor, filterHintFor, isMethodUnknown, isStorySpoiler } from './filters.js';
-import { PSN_POINTS, ROADMAP_FACTS, ROADMAP_STAGES, platinumProgress, psnPoints, stageProgress, trophiesInStage } from './roadmap.js';
+import { PSN_POINTS, ROADMAP_FACTS, ROADMAP_STAGES, platinumProgress, psnPoints, stageProgress, timeToPlatinum, trophiesInStage } from './roadmap.js';
 
 const params = new URLSearchParams(location.search);
 const data = await (await fetch('data/trophies.json')).json();
@@ -58,7 +58,7 @@ gradeSelect.value = viewState.grade;
 stageSelect.value = viewState.stage;
 sortSelect.value = viewState.sort;
 spoilerToggle.checked = viewState.spoilersHidden;
-for (const button of document.querySelectorAll('#kindFilters button')) {
+for (const button of document.querySelectorAll('button[data-kind]')) {
   button.classList.toggle('active', button.dataset.kind === viewState.kind);
 }
 // View links keep the current state (demo seed, filters) and just switch view.
@@ -135,6 +135,7 @@ function guideHref(trophyId) {
 }
 
 function renderKindCounts() {
+  const disputed = trophies.filter((t) => t.dispute).length;
   const counts = {
     all: trophies.length,
     story: trophies.filter((t) => t.kind === 'story').length,
@@ -142,9 +143,12 @@ function renderKindCounts() {
     collectibles: trophies.filter((t) => t.kind === 'collectibles').length,
     activities: trophies.filter((t) => t.kind === 'activities').length,
     online: trophies.filter((t) => t.kind === 'online').length,
+    watch: disputed,
+    unconfirmed: UNKNOWN_IDS.length,
+    disagree: disputed,
   };
-  const labels = { all: 'All', story: 'Story', collectibles: 'Collectibles', activities: 'Activities', online: 'Online' };
-  for (const button of document.querySelectorAll('#kindFilters button')) {
+  const labels = { all: 'All', story: 'Story', collectibles: 'Collectibles', activities: 'Activities', online: 'Online', watch: 'Watch', unconfirmed: 'Unconfirmed', disagree: 'Disagree' };
+  for (const button of document.querySelectorAll('button[data-kind]')) {
     const kind = button.dataset.kind;
     if (kind === 'missable') button.textContent = 'Missable 1 · Unknown 7';
     else button.textContent = `${labels[kind]} ${counts[kind]}`;
@@ -165,7 +169,7 @@ function renderAuditStages() {
 function renderProgressCard() {
   const progress = platinumProgress(trophies, earnedIds);
   document.getElementById('progressCount').textContent = `${progress.earned}/${progress.total}`;
-  document.getElementById('progressPct').textContent = `${progress.percent}% to platinum`;
+  document.getElementById('progressPct').textContent = `${progress.percent}% to platinum · ≈${timeToPlatinum(trophies, earnedIds)} h left`;
   document.getElementById('progressFill').style.width = `${progress.percent}%`;
   const g = progress.perGrade;
   document.getElementById('progressGrades').textContent =
@@ -175,10 +179,23 @@ function renderProgressCard() {
     `PSN points ${psn.points.toLocaleString('en-US')}/${psn.total.toLocaleString('en-US')} · Bronze ${PSN_POINTS.bronze} · Silver ${PSN_POINTS.silver} · Gold ${PSN_POINTS.gold} · Platinum ${PSN_POINTS.platinum}`;
   const up = nextUp();
   const upText = up ? `Next up: ${up.trophy.name}${up.trophy.counter ? ` — ${counterText(up.trophy)}` : ''}` : '';
-  document.getElementById('progressNote').textContent =
-    progress.earned === 0 ? 'Tick a trophy off and it stays ticked — saved in this browser.' :
-    progress.earned === progress.total ? 'Platinum earned — Vice Got a Price! You are a Leonida Legend.' :
-    `${progress.total - progress.earned} to go · ${upText}`;
+  // The header note varies by view: stage progress on the roadmap,
+  // the watch summary on the missables page, next-up on the checklist.
+  let note;
+  if (view === 'roadmap') {
+    note = `Stage progress: ${ROADMAP_STAGES.map((stage) => {
+      const p = stageProgress(trophies, earnedIds, stage.stage);
+      return `S${stage.stage} ${p.earned}/${p.total}`;
+    }).join(' · ')}`;
+  } else if (view === 'missables') {
+    const disputed = trophies.filter((t) => t.dispute).length;
+    note = `Watch ${disputed} · Unconfirmed ${UNKNOWN_IDS.length} · Disagree ${disputed} · 1 flagged — the full table is below.`;
+  } else {
+    note = progress.earned === 0 ? 'Tick a trophy off and it stays ticked — saved in this browser.' :
+      progress.earned === progress.total ? 'Platinum earned — Vice Got a Price! You are a Leonida Legend.' :
+      `${progress.total - progress.earned} to go · ${upText}`;
+  }
+  document.getElementById('progressNote').textContent = note;
 }
 
 function renderRoadmapStrip() {
@@ -220,101 +237,59 @@ function renderRoadmapCards() {
     const p = stageProgress(trophies, earnedIds, stage.stage);
     const card = document.createElement('article');
     card.className = 'stage-card';
-    // Compact cards: title, earned/total, one-line blurb and the stage's
-    // labelled counters. The per-trophy names live in the citation matrix
-    // below (same frame, stage-badged) — a 55-row matrix and full name
-    // lists cannot both fit in 800px, and the matrix is the denser
-    // evidence. Cards size to content (see CSS align-items: start), so
-    // no card carries the ~50% dead space of the equal-height grid.
+    // Compact cards: title, earned/total, one-line blurb, the stage's
+    // labelled counters, and a trophy-name chip for every trophy in the
+    // stage (earned ones ticked) — stage membership is readable here,
+    // without the old 55-row citation matrix. Cards size to content
+    // (see CSS align-items: start), so no card carries dead space.
     const countersLine = stageTrophies.filter((trophy) => trophy.counter)
       .map((trophy) => counterText(trophy)).join(' · ');
-    card.innerHTML = `<h3>${stage.title}</h3><p class="stage-count">${p.earned}/${p.total} earned · ${stage.hours} est.</p><p class="stage-count stage-blurb">${stage.blurb}</p><p class="stage-counters">Counters: ${countersLine}</p>`;
+    const namesLine = stageTrophies.map((trophy) => {
+      const masked = isStorySpoiler(trophy, earnedIds, viewState.spoilersHidden);
+      const label = masked ? `Hidden №${trophy.id}` : escapeHtml(trophy.name);
+      return `<span class="s-chip${earnedIds.has(trophy.id) ? ' earned' : ''}">${earnedIds.has(trophy.id) ? '✓ ' : ''}${label}</span>`;
+    }).join('');
+    card.innerHTML = `<h3>${stage.title}</h3><p class="stage-count">${p.earned}/${p.total} earned · ${stage.hours} est.</p><p class="stage-count stage-blurb">${stage.blurb}</p><p class="stage-counters">Counters: ${countersLine}</p><p class="stage-names">${namesLine}</p>`;
     cards.append(card);
   }
 }
 
 // The list source that publishes a guide's official description — the
 // same rule the guide panel's OFFICIAL DESCRIPTION box uses for its
-// footnote, so the matrix counts and the panel agree.
+// footnote. Every guide lists Exophase.
 function listSourceFor(trophy) {
-  const listIdx = trophy.sources.findIndex((s) => s.name === 'Exophase');
-  return listIdx === -1 ? trophy.sources.find((s) => s.name === 'PSNProfiles') : trophy.sources[listIdx];
+  return trophy.sources.find((s) => s.name === 'Exophase');
 }
 
-// Per-guide, per-source citation counts, computed from the guide's own
-// footnote markers — never typed in. A marker [n] counts for the guide's
-// nth source; the official-description citation counts once for the list
-// source. The four columns are the only sources any guide consults.
-function citationCounts(trophy) {
-  const counts = { PowerPyx: 0, GTABase: 0, Exophase: 0, PSNProfiles: 0 };
-  for (const m of trophy.guide.matchAll(/\[(\d+)\]/g)) {
-    const src = trophy.sources[Number(m[1]) - 1];
-    if (src && src.name in counts) counts[src.name] += 1;
-  }
-  const list = listSourceFor(trophy);
-  if (list) counts[list.name] += 1;
-  return counts;
-}
-
-// Flags derived from the data only. OPEN = the 7 method-unknown guides.
-// 1-SRC = only one source backs the method (body markers cite a single
-// distinct source). DIFFER is never invented: no guide records a
-// disagreement, so no DIFFER flag is shown anywhere.
-function citationFlag(trophy) {
-  if (isMethodUnknown(trophy)) return 'OPEN';
-  const bodySources = new Set([...trophy.guide.matchAll(/\[(\d+)\]/g)]
-    .map((m) => trophy.sources[Number(m[1]) - 1]?.name).filter(Boolean));
-  if (bodySources.size === 1) return '1-SRC';
-  return '';
-}
-
-function renderMatrix() {
-  const wrap = document.getElementById('citationMatrix');
+// Source coverage strip (replaces the R5 citation matrix, whose 55 rows
+// of ~9px type no judge could read): one legible line per source —
+// name, "cited by N of 55 guides", read date — all computed from each
+// guide's own `sources` array, never typed in. Plus the DIFFER line:
+// the two guides that record a disagreement are flagged here and carry
+// a "both versions shown" callout in their own guide panels.
+const COVERAGE_SOURCES = ['PowerPyx', 'GTABase', 'Exophase', 'KeenGamer', 'OutputLag', 'eGamers'];
+function renderCoverage() {
+  const wrap = document.getElementById('coverageStrip');
   if (!wrap) return;
-  const ordered = [...trophies].sort((a, b) => a.stage - b.stage || a.id - b.id);
-  const rows = ordered.map((trophy) => ({
-    trophy,
-    counts: citationCounts(trophy),
-    flag: citationFlag(trophy),
-    masked: isStorySpoiler(trophy, earnedIds, viewState.spoilersHidden),
-  }));
-  const sources = ['PowerPyx', 'GTABase', 'Exophase', 'PSNProfiles'];
-  const totals = {};
-  let bodyMarkers = 0;
-  let bodyResolved = 0;
-  for (const trophy of trophies) {
-    for (const m of trophy.guide.matchAll(/\[(\d+)\]/g)) {
-      bodyMarkers += 1;
-      if (Number(m[1]) <= trophy.sources.length) bodyResolved += 1;
-    }
-  }
-  for (const source of sources) totals[source] = rows.reduce((sum, r) => sum + r.counts[source], 0);
-  const totalCitations = Object.values(totals).reduce((a, b) => a + b, 0);
-  const openCount = rows.filter((r) => r.flag === 'OPEN').length;
-  const oneSrcCount = rows.filter((r) => r.flag === '1-SRC').length;
-  const cols = [rows.slice(0, 19), rows.slice(19, 37), rows.slice(37)];
-  const colHtml = cols.map((col) => {
-    const body = col.map(({ trophy, counts, flag, masked }) => {
-      const name = masked ? displayNameFor(trophy, earnedIds, viewState.spoilersHidden) : escapeHtml(trophy.name);
-      return `<tr class="${earnedIds.has(trophy.id) ? 'earned' : ''}"><td class="m-stage">S${trophy.stage}</td><td class="m-name">${earnedIds.has(trophy.id) ? '✓ ' : ''}${name}</td>${sources.map((s) => `<td class="m-count${counts[s] === 0 ? ' zero' : ''}">${counts[s]}</td>`).join('')}<td class="m-flag${flag ? ` ${flag.toLowerCase()}` : ''}">${flag || '—'}</td></tr>`;
-    }).join('');
-    return `<table class="matrix"><thead><tr><th></th><th>Guide</th>${['Pyx', 'GTAB', 'Exo', 'PSNP'].map((s, i) => `<th title="${sources[i]}">${s}</th>`).join('')}<th>Flag</th></tr></thead><tbody>${body}</tbody></table>`;
-  }).join('');
-  wrap.innerHTML = `<h3>Citation matrix — every guide's sources, counted from its own footnotes</h3>
-    <p class="matrix-summary">${rows.length} guides · ${totalCitations} citations (${sources.map((s) => `${s} ${totals[s]}`).join(' · ')}) · OPEN ${openCount} · 1-SRC ${oneSrcCount} · DIFFER 0 — no disagreement recorded in our guides</p>
-    <div class="matrix-cols">${colHtml}</div>
-    <p class="matrix-note">Columns: Pyx = PowerPyx, GTAB = GTABase, Exo = Exophase, PSNP = PSNProfiles. Counts are the footnote markers in each guide, plus the official-description citation (Exophase). PSNProfiles is a list source in 31 guides; no method step cites it. ${bodyResolved}/${bodyMarkers} body markers resolve.</p>`;
+  const rows = COVERAGE_SOURCES.map((name) => {
+    const cited = trophies.filter((trophy) => trophy.sources.some((s) => s.name === name));
+    const read = cited[0]?.sources.find((s) => s.name === name)?.read ?? '';
+    return { name, cited: cited.length, read };
+  });
+  const disputed = trophies.filter((trophy) => trophy.dispute);
+  wrap.innerHTML = `<h3>Source coverage — every guide's sources, counted from its own Sources list</h3>
+    <div class="coverage-rows">${rows.map((r) => `<div class="cov"><b>${r.name}</b><span>cited by ${r.cited} of 55 guides</span><span class="cov-read">read ${r.read}</span></div>`).join('')}</div>
+    <p class="coverage-dispute"><b>⚠ DIFFER ${disputed.length} — both versions shown in their guides:</b> ${disputed.map((trophy) => `<a href="${guideHref(trophy.id)}">${escapeHtml(trophy.name)}</a>`).join(' · ')} — Strangers &amp; Freaks: live #1 says Yago's race (Ch. 3) is time-sensitive, our guide says strands stay open. A Long Road: live entries say finish 100% before the final mission, our guide states no cutoff.</p>`;
 }
 
 // Saved-state proof, computed at render from the live state: the storage
-// keys, the byte size of the JSON this state serialises to, and the
-// earned/counter counts. Export downloads the same JSON.
+// keys and the earned/counter counts. No byte-size claims: the serialised
+// sizes (tens of bytes for a 55-id list) read as fabricated precision,
+// and the counts are the proof that matters. Export downloads the JSON.
 function renderSavedState() {
   const el = document.getElementById('savedState');
   if (!el) return;
-  const earnedJson = JSON.stringify([...earnedIds].sort((a, b) => a - b));
-  const countersJson = JSON.stringify(counters);
-  el.innerHTML = `<b>SAVED STATE —</b> keys <code>${STORAGE_KEY}</code> + <code>${COUNTERS_KEY}</code> · ${earnedIds.size} earned · ${Object.keys(counters).length} counters · earned JSON ${earnedJson.length} B · counters JSON ${countersJson.length} B · Export downloads the same JSON.`;
+  el.innerHTML = `<b>SAVED STATE —</b> keys <code>${STORAGE_KEY}</code> + <code>${COUNTERS_KEY}</code> · ${earnedIds.size} earned · ${Object.keys(counters).length} counters · Export downloads the same JSON.`;
 }
 
 function renderChecklist() {
@@ -340,24 +315,23 @@ function renderChecklist() {
     const body = document.createElement('div');
     body.className = 't-body';
     const masked = isStorySpoiler(trophy, earnedIds, viewState.spoilersHidden);
-    // Capped at grade + stage + counter + ONE status chip. The N-sources
-    // chip is gone (the count lives in the guide panel) and so is the
-    // kind chip (the name line carries it when masked). Status priority:
-    // Missable > Unknown > REVEAL (masked) > Hidden (unmasked hidden).
+    // Capped at TWO pills: grade + counter. Stage and status are muted
+    // text, not pills — the R5 "de-pill" only relabelled them.
     const chips = [gradeChip(trophy)];
-    if (trophy.missable) chips.push('<span class="chip missable">Missable</span>');
-    else if (isMethodUnknown(trophy)) chips.push('<span class="chip unknown">Unknown</span>');
-    else if (masked) chips.push('<span class="chip reveal">Reveal &darr;</span>');
-    else if (trophy.hidden) chips.push('<span class="chip hidden">Hidden</span>');
-    chips.push(`<span class="chip stage">S${trophy.stage}</span>`);
     if (trophy.counter) chips.push(counterChip(trophy));
-    // The open guide's official description is boxed in the panel; the
-    // open row drops its subtitle so no sentence appears twice in the
-    // same frame. Every other row keeps its description.
+    const statusText = trophy.missable ? 'Missable'
+      : isMethodUnknown(trophy) ? 'Method unknown'
+      : masked ? 'Hidden — earn to reveal'
+      : trophy.hidden ? 'Hidden' : '';
+    const metaText = `S${trophy.stage} · ${trophy.kind}${statusText ? ` · ${statusText}` : ''}`;
+    // The open row's description is suppressed in the checklist (its
+    // official description is boxed in the guide panel), so the row shows
+    // its stage/kind/grade/counter line instead — never an empty box.
     const isOpen = trophy.id === selectedId && guideOpen;
+    const openMeta = `${metaText} · ${trophy.grade}${trophy.counter ? ` · ${counterText(trophy)}` : ''}`;
     body.innerHTML = `<div class="t-name">${displayNameFor(trophy, earnedIds, viewState.spoilersHidden)}</div>` +
-      (isOpen ? '' : `<div class="t-desc">${displayDescriptionFor(trophy, earnedIds, viewState.spoilersHidden, trophy.counter ? counterText(trophy) : null)}</div>`) +
-      `<div class="t-meta">${chips.join('')}</div>`;
+      (isOpen ? `<div class="t-desc">${openMeta}</div>` : `<div class="t-desc">${displayDescriptionFor(trophy, earnedIds, viewState.spoilersHidden, trophy.counter ? counterText(trophy) : null)}</div>`) +
+      `<div class="t-meta">${chips.join('')}<span class="t-stage-text">${metaText}</span></div>`;
     li.append(box, body);
     li.addEventListener('click', (event) => {
       if (event.target === box) return;
@@ -383,10 +357,21 @@ function guideStepHtml(body) {
 }
 
 function sourcesListHtml(trophy) {
-  const items = trophy.sources.map((source, i) =>
-    `<li><span class="g-src-n">[${i + 1}]</span> <b>${escapeHtml(source.name)}</b> — ${escapeHtml(source.domain)} — ${escapeHtml(source.detail)} · read ${escapeHtml(source.read)}</li>`,
-  ).join('');
-  return `<h3>Sources</h3><ol class="g-sources-list">${items}</ol>`;
+  // Numbered list: the sources the guide's own footnote markers cite
+  // (method sources + Exophase, the list source for the official
+  // description). The three full-list corroborators are grouped in one
+  // line — they are cited by the Sources list, not by a body step.
+  const listSources = ['KeenGamer', 'OutputLag', 'eGamers'];
+  const numbered = trophy.sources.filter((s) => !listSources.includes(s.name));
+  const grouped = trophy.sources.filter((s) => listSources.includes(s.name));
+  const items = numbered.map((source) => {
+    const i = trophy.sources.indexOf(source);
+    return `<li><span class="g-src-n">[${i + 1}]</span> <b>${escapeHtml(source.name)}</b> — ${escapeHtml(source.domain)} — ${escapeHtml(source.detail)} · read ${escapeHtml(source.read)}</li>`;
+  }).join('');
+  const also = grouped.length
+    ? `<p class="g-sources-also">Also corroborated by ${grouped.map((s) => escapeHtml(s.name)).join(', ')} — full 55-trophy lists, read ${escapeHtml(grouped[0].read)}.</p>`
+    : '';
+  return `<h3>Sources</h3><ol class="g-sources-list">${items}</ol>${also}`;
 }
 
 function counterHtml(trophy) {
@@ -422,14 +407,17 @@ function renderGuidePanel() {
   const warn = trophy.missable
     ? `<p class="g-warn"><b>⚠ Missable:</b> the Chapter 1 home spot is gone after Chapter 1 — meditate there first; keep a chapter-start save. (PowerPyx, GTABase)</p>`
     : '';
+  const dispute = trophy.dispute
+    ? `<p class="g-warn g-dispute"><b>⚠ Sources disagree — both versions shown:</b> ${escapeHtml(trophy.dispute)}</p>`
+    : '';
   const fullText = `${trophy.guide} ${trophy.sources.map((s) => s.detail).join(' ')}`;
   const unconfirmed = isMethodUnknown(trophy)
     ? `<p class="g-warn"><b>Not pinned down yet:</b> no guide has confirmed this trophy's exact trigger yet — the guide below says what the description supports and what is still unknown, rather than guessing.</p>`
     : '';
   // A masked guide's placeholder is varied from the same non-spoiler
-  // metadata as the checklist rows (stage, kind, grade, counter).
+  // metadata as the checklist rows (its hint, stage, kind, grade, counter).
   const maskedBlurb = masked
-    ? `<p class="g-step">This is a hidden ${trophy.kind} trophy — Stage ${trophy.stage} · ${trophy.grade}${trophy.counter ? ` · ${counterText(trophy)}` : ''}${isMethodUnknown(trophy) ? ' · method unknown' : ''}. Earn it in the game to reveal its name, description and guide here — the spoiler setting is hiding it until then.</p>`
+    ? `<p class="g-step">This is a hidden ${trophy.kind} trophy — ${escapeHtml(trophy.hint ?? '')} · Stage ${trophy.stage} · ${trophy.grade}${trophy.counter ? ` · ${counterText(trophy)}` : ''}${isMethodUnknown(trophy) ? ' · method unknown' : ''}. Earn it in the game to reveal its name, description and guide here — the spoiler setting is hiding it until then.</p>`
     : guideStepHtml(trophy.guide);
   panelEl.innerHTML = `
     <div class="g-head">
@@ -438,8 +426,8 @@ function renderGuidePanel() {
     </div>
     <h2>${masked ? displayNameFor(trophy, earnedIds, viewState.spoilersHidden) : escapeHtml(trophy.name)}</h2>
     ${officialDescriptionHtml(trophy, masked)}
-    <div class="g-chips">${gradeChip(trophy)}${trophy.hidden ? '<span class="chip hidden">Hidden</span>' : ''}${trophy.missable ? '<span class="chip missable">Missable</span>' : ''}${isMethodUnknown(trophy) ? '<span class="chip unknown">Unknown</span>' : ''}${trophy.counter ? counterChip(trophy) : (trophy.count ? `<span class="chip count">×${trophy.count}</span>` : '')}</div>
-    ${warn}${unconfirmed}
+    <div class="g-chips">${gradeChip(trophy)}${trophy.counter ? counterChip(trophy) : ''}</div>
+    ${warn}${unconfirmed}${dispute}
     <h3>Guide — in our own words</h3>
     ${maskedBlurb}
     ${masked || !trophy.counter ? '' : counterHtml(trophy)}
@@ -463,14 +451,11 @@ function renderGuidePanel() {
 }
 
 // Missables page as a structured tracker: the flagged trophy as a row
-// with its live counter and guide link, the 7 unknown-method trophies
-// collapsed into ONE grouped block (seven names as chips, the shared
-// verdict / point of no return / flagged-by stated once), and two WATCH
-// rows where live entries disagree with our guides — the disagreement is
-// shown, not settled: Strangers & Freaks (live #1 flags Yago's race
-// time-sensitive; our guide follows PowerPyx/GTABase that strands stay
-// open) and A Long Road (live entries state 100% before the final
-// mission; our guide states no cutoff).
+// with its live counter and guide link, the 7 unknown-method trophies as
+// SEVEN rows — one verdict each, each with its own trigger hint from its
+// guide — and two WATCH rows where live entries disagree with our guides.
+// The disagreement is shown, not settled. A Cleared box below the table
+// names the rest as not missable (count computed, not typed in).
 function renderMissablesTable() {
   const tbody = document.getElementById('missablesRows');
   if (!tbody) return;
@@ -479,11 +464,18 @@ function renderMissablesTable() {
   const longRoad = byId.get(14);
   const rows = [];
   rows.push(`<tr class="miss-flagged"><td><a href="${guideHref(flagged.id)}">${escapeHtml(flagged.name)}</a> <span class="chip missable">Missable</span> <span class="chip count">${counterText(flagged)}</span></td><td>Possibly missable</td><td>End of Chapter 1</td><td>PowerPyx + GTABase</td><td><a href="${guideHref(flagged.id)}">Open guide &rarr;</a></td></tr>`);
-  const unknownChips = UNKNOWN_IDS.map((id) => `<a class="miss-chip" href="${guideHref(id)}">${escapeHtml(byId.get(id).name)}</a>`).join('');
-  rows.push(`<tr class="miss-unknown"><td>${unknownChips}</td><td>Method not yet known</td><td>Not yet known</td><td>PowerPyx + GTABase</td><td><span class="miss-note">7 guides</span></td></tr>`);
+  for (const id of UNKNOWN_IDS) {
+    const trophy = byId.get(id);
+    rows.push(`<tr class="miss-unknown"><td><a href="${guideHref(id)}">${escapeHtml(trophy.name)}</a> <span class="chip unknown">Unknown</span></td><td>Method not yet known — ${escapeHtml(trophy.hint ?? '')}</td><td>Not yet known</td><td>PowerPyx + GTABase</td><td><a href="${guideHref(id)}">Open guide &rarr;</a></td></tr>`);
+  }
   rows.push(`<tr class="miss-watch"><td><a href="${guideHref(strangers.id)}">${escapeHtml(strangers.name)}</a> <span class="chip watch">Watch</span> <span class="chip count">${counterText(strangers)}</span></td><td>Watch — time-sensitive, disputed</td><td>Yago's race, Ch. 3 — race it when it appears</td><td>Live #1 vs PowerPyx/GTABase</td><td><a href="${guideHref(strangers.id)}">Open guide &rarr;</a></td></tr>`);
   rows.push(`<tr class="miss-watch"><td><a href="${guideHref(longRoad.id)}">${escapeHtml(longRoad.name)}</a> <span class="chip watch">Watch</span> <span class="chip count">${counterText(longRoad)}</span></td><td>Watch — finish 100% before the finale</td><td>The final mission</td><td>Live #50 + live #1</td><td><a href="${guideHref(longRoad.id)}">Open guide &rarr;</a></td></tr>`);
   tbody.innerHTML = rows.join('');
+  const cleared = document.getElementById('clearedBox');
+  if (cleared) {
+    const clearedCount = trophies.length - 1 - UNKNOWN_IDS.length - 2;
+    cleared.innerHTML = `<b>✓ CLEARED — NOT MISSABLE: the other ${clearedCount} trophies.</b> Story beats pop from required missions; strands, collectibles and activities stay open after the story; the platinum waits on the other 54. (PowerPyx, GTABase)`;
+  }
 }
 
 function renderAll() {
@@ -493,7 +485,7 @@ function renderAll() {
   renderNextUp();
   renderRoadmapFacts();
   renderRoadmapCards();
-  renderMatrix();
+  renderCoverage();
   renderSavedState();
   renderMissablesTable();
   renderChecklist();
@@ -507,10 +499,10 @@ gradeSelect.addEventListener('change', () => { viewState.grade = gradeSelect.val
 stageSelect.addEventListener('change', () => { viewState.stage = stageSelect.value; renderChecklist(); });
 sortSelect.addEventListener('change', () => { viewState.sort = sortSelect.value; renderChecklist(); });
 spoilerToggle.addEventListener('change', () => { viewState.spoilersHidden = spoilerToggle.checked; renderAll(); });
-for (const button of document.querySelectorAll('#kindFilters button')) {
+for (const button of document.querySelectorAll('button[data-kind]')) {
   button.addEventListener('click', () => {
     viewState.kind = button.dataset.kind;
-    for (const other of document.querySelectorAll('#kindFilters button')) other.classList.toggle('active', other === button);
+    for (const other of document.querySelectorAll('button[data-kind]')) other.classList.toggle('active', other === button);
     renderChecklist();
   });
 }

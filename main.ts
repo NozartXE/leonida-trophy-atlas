@@ -33,6 +33,8 @@
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
 // Dusk Atlas: 55 trophies, 28 hidden, 1 missable (Positive Mental Attitude).
+// Round 6 (credibility + legibility): DIFFER 2, 6 sources, coverage strip
+// in place of the citation matrix, de-pilled rows, split unknown rows.
 // Deterministic: same files in, same dossier bytes out — run it twice to check.
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

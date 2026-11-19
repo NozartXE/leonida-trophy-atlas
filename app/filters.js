@@ -28,7 +28,9 @@ export function displayNameFor(trophy, earnedIds, spoilersHidden) {
 
 export function displayDescriptionFor(trophy, earnedIds, spoilersHidden, counterLabel = null) {
   if (!isStorySpoiler(trophy, earnedIds, spoilersHidden)) return trophy.description;
-  const bits = [`Stage ${trophy.stage}`, trophy.kind, trophy.grade];
+  // The distinct visible fact is the trophy's own hint (chapter / mission /
+  // trigger, taken from its guide) — no two masked rows read alike.
+  const bits = [trophy.hint ?? `Stage ${trophy.stage}`];
   if (counterLabel) bits.push(counterLabel);
   if (isMethodUnknown(trophy)) bits.push('method unknown');
   return `Hidden ${trophy.kind} trophy — ${bits.join(' · ')} — earn it to reveal.`;
@@ -40,8 +42,14 @@ export function applyTrophyFilters(trophies, options) {
   const query = (options.query ?? '').trim().toLowerCase();
   const shown = trophies.filter((trophy) => {
     if (options.kind === 'missable' && !trophy.missable && !isMethodUnknown(trophy)) return false;
+    // Watch and Disagree are the guides that record a disagreement with
+    // live entries (the `dispute` field in the data): Strangers & Freaks
+    // and A Long Road. Unconfirmed is the 7 method-unknown trophies.
+    if (options.kind === 'watch' && !trophy.dispute) return false;
+    if (options.kind === 'unconfirmed' && !isMethodUnknown(trophy)) return false;
+    if (options.kind === 'disagree' && !trophy.dispute) return false;
     if (options.kind === 'online') return false; // no online trophies exist
-    if (options.kind && options.kind !== 'all' && options.kind !== 'missable' && trophy.kind !== options.kind) return false;
+    if (options.kind && options.kind !== 'all' && options.kind !== 'missable' && options.kind !== 'watch' && options.kind !== 'unconfirmed' && options.kind !== 'disagree' && trophy.kind !== options.kind) return false;
     if (options.grade && options.grade !== 'all' && trophy.grade !== options.grade) return false;
     if (options.stage && options.stage !== 'all' && trophy.stage !== Number(options.stage)) return false;
     if (query) {
@@ -66,6 +74,9 @@ export function filterHintFor(kind, grade, query, shownCount, totalCount) {
   }
   const parts = [`Showing ${shownCount} of ${totalCount} trophies`];
   if (kind === 'missable') parts.push('1 flagged possibly missable + 7 method unknown · 2 watch (Strangers & Freaks, A Long Road) in the missables view');
+  else if (kind === 'watch') parts.push('2 on watch — Strangers & Freaks, A Long Road — both versions in their guides');
+  else if (kind === 'unconfirmed') parts.push('7 trophies whose method is not yet known');
+  else if (kind === 'disagree') parts.push('2 guides record a disagreement — both versions shown in their guides');
   else if (kind && kind !== 'all') parts.push(`kind: ${kind}`);
   if (grade && grade !== 'all') parts.push(`grade: ${grade}`);
   if (query) parts.push(`matching “${query}”`);

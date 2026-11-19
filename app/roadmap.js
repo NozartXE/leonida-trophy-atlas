@@ -17,8 +17,25 @@ export const ROADMAP_FACTS = {
   saves: 'Manual saves at every chapter start',
   replay: 'No mission replay',
   cheats: 'Cheats disable trophies',
-  note: 'Totals from the cited roadmap guides (PowerPyx, GTABase), read 19 Nov 2026. Order: story, strands, collectibles, robberies, final grind.',
+  note: 'Totals from the cited roadmap guides (PowerPyx, GTABase, KeenGamer, OutputLag), read 20 Nov 2026. Order: story, strands, collectibles, robberies, final grind.',
 };
+
+// Hours left to the platinum, computed from our own data: each stage's
+// hour range midpoint, scaled by the share of that stage still unearned.
+// Stages overlap (background tallies run while you do other stages), so
+// this is the same kind of estimate as the ~200 h total — not a sum of
+// clock hours. Live #50's ≈173 h figure is the model, not a value copied.
+export function timeToPlatinum(trophies, earnedIds) {
+  let remaining = 0;
+  for (const stage of ROADMAP_STAGES) {
+    const m = stage.hours.match(/(\d+)[\u2013-](\d+)/);
+    if (!m) continue;
+    const midpoint = (Number(m[1]) + Number(m[2])) / 2;
+    const p = stageProgress(trophies, earnedIds, stage.stage);
+    remaining += midpoint * ((p.total - p.earned) / p.total);
+  }
+  return Math.round(remaining);
+}
 
 // PSN trophy points on the current PS5 scale (Oct 2020 onward): Bronze 15,
 // Silver 30, Gold 90, Platinum 300 — PSN100 methodology via PlayStation

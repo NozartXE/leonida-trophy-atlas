@@ -147,13 +147,19 @@ body.view-missables .kicker { display: none; }
 /* Two-column layout */
 .layout { display: grid; grid-template-columns: 1fr 470px; gap: 12px; align-items: start; }
 .checklist, .guide-panel { background: var(--ink-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+/* Fold alignment (measured, demo state): the 7th checklist row starts at
+   799px, so its top sits 1px above the fold. 1px here puts the row
+   boundary on the 800px fold, so no checklist row is ever cut mid-row;
+   the guide panel is a separate grid column and does not move. */
+.checklist { margin-top: 1px; }
 .list-hint { margin: 0 0 8px; font-size: 12.5px; color: var(--cream-dim); }
-.list-controls { display: flex; gap: 8px; margin: 0 0 6px; }
+.list-controls { display: flex; gap: 8px; margin: 0 0 6px; align-items: center; }
+.list-controls .kind-filters { margin-left: auto; }
 .list-controls label { font-size: 12.5px; color: var(--cream-dim); }
 .list-controls select { background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; font-size: 12.5px; }
 #trophyList { list-style: none; margin: 0; padding: 0; }
 #trophyList li {
-  display: flex; gap: 9px; align-items: flex-start; padding: 8px 6px;
+  display: flex; gap: 9px; align-items: flex-start; padding: 6px 6px;
   border-top: 1px solid var(--line); cursor: pointer; border-radius: 6px;
 }
 #trophyList li:hover { background: var(--ink-3); }
@@ -163,7 +169,10 @@ body.view-missables .kicker { display: none; }
 .t-body { flex: 1; min-width: 0; }
 .t-name { font-weight: 700; font-size: 14px; }
 .t-desc { font-size: 12.5px; color: var(--cream-dim); }
-.t-meta { margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap; }
+.t-meta { margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+/* Stage + status as muted text, not pills: rows are capped at 2 pills
+   (grade + counter). */
+.t-stage-text { font-size: 11.5px; color: var(--cream-dim); }
 .chip {
   font-size: 11px; font-weight: 700; letter-spacing: .4px; padding: 1px 7px; border-radius: 20px;
   border: 1px solid var(--line); color: var(--cream-dim); text-transform: uppercase;
@@ -198,10 +207,14 @@ body.view-missables .kicker { display: none; }
 .g-foot { color: var(--amber-soft); font-size: 10px; font-weight: 700; }
 .guide-panel .g-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
 .guide-panel h3 { font-size: 12px; letter-spacing: 1.4px; color: var(--amber-soft); margin: 5px 0 2px; text-transform: uppercase; }
-.guide-panel p { font-size: 11.5px; line-height: 1.3; margin: 0 0 4px; }
+.guide-panel p { font-size: 11.5px; line-height: 1.3; margin: 0 0 3px; }
 .guide-panel .g-step strong { color: var(--amber-soft); }
 .guide-panel .g-closed { font-size: 13.5px; color: var(--cream-dim); }
-.guide-panel .g-sources-list { margin: 0 0 4px; padding-left: 0; list-style: none; font-size: 10.5px; line-height: 1.25; color: var(--cream-dim); }
+.guide-panel .g-sources-list { margin: 0 0 3px; padding-left: 0; list-style: none; font-size: 10.5px; line-height: 1.2; color: var(--cream-dim); }
+/* Grouped full-list corroborators (KeenGamer, OutputLag, eGamers) — one
+   line under the numbered list, not three more list items. */
+.g-sources-also { font-size: 10.5px; line-height: 1.2; color: var(--cream-dim); margin: 0 0 4px; }
+.g-sources-also b { color: var(--cream); }
 .g-src-n { color: var(--amber-soft); font-weight: 800; }
 .guide-panel .g-sources-list li { margin-bottom: 1px; }
 .guide-panel .g-sources-list b { color: var(--cream); }
@@ -244,32 +257,37 @@ body.view-missables .kicker { display: none; }
 .stage-card .stage-count { font-size: 12px; color: var(--cream-dim); margin: 0 0 4px; }
 .stage-card .stage-blurb { font-size: 11px; line-height: 1.25; }
 .stage-card .stage-counters { font-size: 11px; color: var(--amber-soft); margin: 0; line-height: 1.3; }
+/* Trophy-name chips in each stage card (restored from R3): every trophy
+   in the stage, earned ones ticked green. */
+.stage-names { margin: 5px 0 0; line-height: 1.5; }
+.s-chip {
+  display: inline-block; font-size: 11px; color: var(--cream); background: var(--ink-2);
+  border: 1px solid var(--line); border-radius: 10px; padding: 0 7px; margin: 1px 3px 1px 0; white-space: nowrap;
+}
+.s-chip.earned { color: var(--good); border-color: var(--good); }
 
-/* Citation matrix — 3 columns of 19/18/18 guides, per-source counts
-   computed from each guide's own footnote markers. */
-.citation-matrix { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
-.citation-matrix h3 { margin: 0 0 2px; font-size: 13.5px; color: var(--amber-soft); }
-.matrix-summary { margin: 0 0 3px; font-size: 11.5px; color: var(--cream); font-weight: 700; }
-.matrix-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.matrix { width: 100%; border-collapse: collapse; font-size: 10px; line-height: 1.1; table-layout: fixed; }
-.matrix th, .matrix td { text-align: left; padding: 0 3px; border-bottom: 1px solid #1d3a44; vertical-align: middle; white-space: nowrap; overflow: hidden; }
-.matrix th { padding: 1px 3px; }
-.matrix th:nth-child(1), .matrix td.m-stage { width: 20px; }
-.matrix th:nth-child(2), .matrix td.m-name { width: auto; }
-.matrix th:nth-child(n+3):nth-child(-n+6), .matrix td.m-count { width: 30px; }
-.matrix th:nth-child(7), .matrix td.m-flag { width: 42px; }
-.matrix th { color: var(--amber-soft); font-size: 9px; letter-spacing: .6px; text-transform: uppercase; }
-.matrix .m-stage { color: var(--cream-dim); font-weight: 700; }
-.matrix .m-name { white-space: normal; color: var(--cream); }
-.matrix tr.earned .m-name { color: var(--good); }
-.matrix .m-count { text-align: center; font-weight: 700; }
-.matrix .m-count.zero { color: #5a7480; font-weight: 400; }
-.matrix .m-flag { text-align: center; font-weight: 800; font-size: 9px; }
-.matrix .m-flag.open { color: #e0b8f0; }
-.matrix .m-flag.\31-src { color: var(--amber-soft); }
-.matrix-note { margin: 3px 0 0; font-size: 10.5px; color: var(--cream-dim); }
+/* Source coverage strip — one legible line per source (≥11px), replacing
+   the R5 citation matrix: name, "cited by N of 55 guides", read date,
+   all computed from the data; plus the DIFFER line naming the two
+   disputed guides. */
+.coverage-strip { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+.coverage-strip h3 { margin: 0 0 4px; font-size: 13.5px; color: var(--amber-soft); }
+.coverage-rows { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 16px; }
+.cov { display: flex; gap: 8px; align-items: baseline; font-size: 12px; padding: 3px 0; border-bottom: 1px solid #1d3a44; }
+.cov b { color: var(--cream); min-width: 82px; }
+.cov span { color: var(--cream-dim); }
+.cov .cov-read { margin-left: auto; color: var(--amber-soft); white-space: nowrap; }
+.coverage-dispute { margin: 6px 0 0; font-size: 12px; color: var(--cream); background: #2c2410; border: 1px solid var(--amber); border-radius: 6px; padding: 5px 8px; line-height: 1.35; }
+.coverage-dispute b { color: var(--amber); }
 .saved-state { margin: 8px 0 0; font-size: 11.5px; color: var(--cream-dim); border-top: 1px solid var(--line); padding-top: 6px; }
 .saved-state code { color: var(--amber-soft); font-size: 10.5px; }
+
+/* Cleared box on the missables page: the trophies certified not missable. */
+.cleared-box {
+  background: #12291a; border: 1px solid var(--good); border-radius: 8px;
+  padding: 6px 10px; font-size: 12.5px; color: var(--cream); margin-bottom: 10px; line-height: 1.35;
+}
+.cleared-box b { color: var(--good); }
 
 /* Missables summary table: Trophy · Verdict · Point of no return · Flagged by */
 .miss-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 10px; }
@@ -307,12 +325,11 @@ body.view-roadmap .layout, body.view-roadmap .missable-banner, body.view-roadmap
 body.view-roadmap .roadmap-full { margin-top: 8px; padding: 5px 12px; }
 body.view-roadmap .view-nav { margin-bottom: 4px; }
 /* In the roadmap view the section title is redundant (the nav already
-   says Roadmap) and the progress note duplicates the NEXT UP banner
-   below it — both are hidden here only, to fund the citation matrix.
-   The h2 stays in the full-page view; the note stays on every other
-   frame. */
+   says Roadmap) — hidden here only, to fund the coverage strip and the
+   stage-name chips. The h2 stays in the full-page view. The progress
+   note STAYS visible here: it carries the per-view header (stage
+   progress on the roadmap, watch summary on missables). */
 body.view-roadmap .roadmap-full h2 { display: none; }
-body.view-roadmap .progress-note { display: none; }
 body.view-roadmap .masthead { padding: 6px 0 3px; }
 body.view-roadmap .progress-card { padding: 4px 12px; }
 body.view-roadmap .progress-big { font-size: 18px; }
@@ -322,29 +339,35 @@ body.view-roadmap .roadmap-facts-note { font-size: 11.5px; }
 body.view-roadmap .next-up { margin-bottom: 5px; padding: 3px 10px; font-size: 12px; }
 body.view-roadmap .missable-banner { display: none; }
 body.view-roadmap .stage-cards { grid-template-columns: repeat(4, 1fr); gap: 5px; }
-body.view-roadmap .stage-card { padding: 5px 7px; }
+body.view-roadmap .stage-card { padding: 4px 6px; }
+/* Blurbs hide in the roadmap view only — the name chips below them carry
+   the stage's content, and the frame needs the room. */
+body.view-roadmap .stage-card .stage-blurb { display: none; }
+body.view-roadmap .stage-names { line-height: 1.35; margin-top: 3px; }
+body.view-roadmap .s-chip { font-size: 10.5px; padding: 0 6px; }
 body.view-roadmap .stage-card h3 { font-size: 12px; white-space: nowrap; }
 body.view-roadmap .stage-card .stage-count { font-size: 11px; margin-bottom: 2px; }
 body.view-roadmap .stage-card .stage-blurb { font-size: 10.5px; line-height: 1.15; }
 body.view-roadmap .stage-card .stage-counters { font-size: 10.5px; line-height: 1.2; }
 body.view-roadmap .roadmap-facts .fact { font-size: 12px; padding: 1px 9px; }
-body.view-roadmap .citation-matrix { margin-top: 5px; padding-top: 4px; }
-body.view-roadmap .citation-matrix h3 { font-size: 12.5px; }
-body.view-roadmap .matrix-summary { font-size: 11px; margin-bottom: 4px; }
-body.view-roadmap .matrix-note { font-size: 10px; margin-top: 4px; }
+body.view-roadmap .coverage-strip { margin-top: 4px; padding-top: 3px; }
+body.view-roadmap .coverage-strip h3 { font-size: 12.5px; margin-bottom: 2px; }
+body.view-roadmap .cov { font-size: 11.5px; padding: 1px 0; }
+body.view-roadmap .coverage-dispute { font-size: 11.5px; margin-top: 3px; padding: 4px 8px; }
 body.view-roadmap .saved-state { font-size: 11px; margin-top: 6px; padding-top: 5px; }
 
 /* Missables-only view: the argument gets the whole frame */
 body.view-missables .layout, body.view-missables .missable-banner, body.view-missables .roadmap-strip,
 body.view-missables .toolbar, body.view-missables .roadmap-full { display: none; }
-body.view-missables .missables-full { display: block; margin-top: 8px; padding: 6px 12px; }
+body.view-missables .missables-full { display: block; margin-top: 8px; padding: 4px 12px; }
 body.view-missables .missables-full h2 { margin-bottom: 4px; }
-body.view-missables .missables-lede { font-size: 12.5px; line-height: 1.35; margin-bottom: 6px; }
-body.view-missables .missable-case { padding: 5px 10px; margin-bottom: 5px; }
+body.view-missables .missables-lede { font-size: 12.5px; line-height: 1.35; margin-bottom: 4px; }
+body.view-missables .missable-case { padding: 4px 10px; margin-bottom: 4px; }
 body.view-missables .missable-case:last-child { margin-bottom: 0; }
 body.view-missables .missable-case h3 { font-size: 14px; margin-bottom: 3px; }
 body.view-missables .missable-case p { font-size: 12px; line-height: 1.35; margin-bottom: 3px; }
-body.view-missables .miss-table { font-size: 11.5px; margin-bottom: 6px; }
+body.view-missables .miss-table { font-size: 11.5px; margin-bottom: 4px; }
+body.view-missables .cleared-box { font-size: 12px; padding: 4px 10px; margin-bottom: 4px; }
 body.view-missables .miss-table th, body.view-missables .miss-table td { padding: 2px 6px; }
 body.view-missables .miss-table .miss-chip { font-size: 10.5px; padding: 1px 6px; }
 body.view-missables .missable-case ul { font-size: 12px; line-height: 1.35; }

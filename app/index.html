@@ -22,7 +22,7 @@
   </section>
 </header>
 
-<div class="audit-strip" id="auditStrip"><span class="audit-label">AUDIT</span> 28 hidden &middot; 55/55 guides cite a source &middot; 7 methods unknown &middot; read 19 Nov 2026 <span class="audit-stages" id="auditStages"></span></div>
+<div class="audit-strip" id="auditStrip"><span class="audit-label">AUDIT</span> 28 hidden &middot; 55/55 guides cite a source &middot; 7 methods unknown &middot; 2 watch &middot; 2 disagree &middot; read 20 Nov 2026 <span class="audit-stages" id="auditStages"></span></div>
 
 <nav class="view-nav" aria-label="Views">
   <a href="./" data-view-link="checklist">Checklist</a>
@@ -89,6 +89,11 @@
           <option value="count">Counter progress</option>
         </select>
       </label>
+      <span class="kind-filters" id="watchFilters" role="group" aria-label="Filter by watch status">
+        <button type="button" data-kind="watch">Watch</button>
+        <button type="button" data-kind="unconfirmed">Unconfirmed</button>
+        <button type="button" data-kind="disagree">Disagree</button>
+      </span>
     </div>
     <p class="list-hint" id="listHint"></p>
     <ol id="trophyList"></ol>
@@ -101,41 +106,42 @@
   <div class="next-up" id="nextUpBanner" role="status"></div>
   <div class="roadmap-facts" id="roadmapFacts" aria-label="Roadmap totals"></div>
   <div class="stage-cards" id="stageCards"></div>
-  <section class="citation-matrix" id="citationMatrix" aria-label="Citation matrix — every guide's sources"></section>
+  <section class="coverage-strip" id="coverageStrip" aria-label="Source coverage — every guide's sources"></section>
   <p class="saved-state" id="savedState"></p>
 </section>
 
 <section class="missables-full" id="missablesFull" aria-label="Missables — the honest case">
   <h2>Missables — the honest case</h2>
-  <p class="missables-lede">One trophy is flagged as possibly missable by the guides we cite. Seven more are not known well enough yet for anyone to certify them either way — their methods are still unknown, so this table does not call them safe. Two more are on WATCH: other live entries flag them time-sensitive, and our guides disagree or say nothing — the table shows both sides instead of picking one. Every row links to its guide.</p>
+  <p class="missables-lede">One trophy is flagged as possibly missable. Seven more are not known well enough yet for anyone to certify them either way. Two more are on WATCH: other live entries flag them time-sensitive, and our guides disagree or say nothing — the table shows both sides instead of picking one. Every row links to its guide.</p>
 
   <table class="miss-table" aria-label="Missable and unknown-method trophies">
     <thead><tr><th>Trophy</th><th>Verdict</th><th>Point of no return</th><th>Flagged by</th><th></th></tr></thead>
     <tbody id="missablesRows"></tbody>
   </table>
 
+  <div class="cleared-box" id="clearedBox" role="status"></div>
+
   <article class="missable-case">
     <h3>The one flagged trophy: Positive Mental Attitude</h3>
-    <p><b>What it asks:</b> meditate at every meditation spot across Leonida — 18 spots in 10 locations, for both Jason and Lucia. <b>Why it can be missed:</b> the first spot is offered at home in Chapter 1 — the balcony spot tied to the Down to Earth moment — and it becomes unavailable once Chapter 1 ends. There is no mission replay, so a missed Chapter 1 spot cannot be gone back for on the same save.</p>
-    <p><b>The point of no return:</b> the end of Chapter 1. Before you finish it, meditate at the home spot, and keep a manual save made at the start of Chapter 1 so the chapter can be restarted if the spot was skipped. <b>Who flags it:</b> PowerPyx (powerpyx.com) and GTABase (gtabase.com) both name Positive Mental Attitude as the only possibly-missable trophy — read 19 Nov 2026. Note the wording: <i>possibly</i> missable. Neither guide states it as proven.</p>
+    <p><b>What it asks:</b> meditate at every meditation spot across Leonida — 18 spots in 10 locations, for both Jason and Lucia. <b>Why it can be missed:</b> the first spot is offered at home in Chapter 1 and becomes unavailable once Chapter 1 ends. There is no mission replay, so a missed Chapter 1 spot cannot be gone back for on the same save.</p>
+    <p><b>The point of no return:</b> the end of Chapter 1. Before you finish it, meditate at the home spot, and keep a manual save made at the start of Chapter 1 so the chapter can be restarted if the spot was skipped. <b>Who flags it:</b> PowerPyx and GTABase both name Positive Mental Attitude as the only possibly-missable trophy — read 19 Nov 2026. Note the wording: <i>possibly</i> missable. Neither guide states it as proven.</p>
   </article>
 
   <article class="missable-case">
     <h3>Why nothing else is currently considered missable</h3>
     <ul>
       <li><b>Chapter and mission trophies</b> pop from required story beats — story missions cannot be skipped past, so they cannot be walked past by accident.</li>
-      <li><b>Stranger strands, collectibles and activities</b> stay available after the story ends, per PowerPyx and GTABase — the world does not close behind you; only the Chapter 1 home spot is chapter-locked. <b>One live disagreement:</b> the current #1 entry flags Yago's Race Against Yago (Chapter 3, hourglass icon) as time-sensitive, saying the strand can fail if the race is left — while our Strangers &amp; Freaks guide follows PowerPyx and GTABase that strands stay available. Not settled either way; the safe order is to race it the moment it appears.</li>
+      <li><b>Stranger strands, collectibles and activities</b> stay available after the story ends, per PowerPyx and GTABase. <b>One live disagreement:</b> the current #1 entry flags Yago's Race Against Yago (Chapter 3, hourglass icon) as time-sensitive — while our Strangers &amp; Freaks guide says strands stay open. Not settled; race it the moment it appears.</li>
       <li><b>A Long Road</b> has no cutoff in our guide — but live entries state 100% completion must finish before the final mission. Treat the finale as the safe deadline: do the count trophies before the last mission, not after.</li>
-      <li><b>The platinum itself</b> only waits for the other 54 — it has no condition of its own that could be missed.</li>
     </ul>
-    <p>PlanetGTA6 (planetgta6.com), cross-checking the official list against Exophase and PSNProfiles, notes that <b>no reliable missable list exists yet</b> — read 19 Nov 2026. The one-flag picture above is the best current evidence, stated with its uncertainty intact — not a settled fact about the game.</p>
+    <p>PlanetGTA6 notes that <b>no reliable missable list exists yet</b> — read 19 Nov 2026. The one-flag picture above is the best current evidence, stated with its uncertainty intact — not a settled fact about the game.</p>
     <p class="missables-rule"><b>The working rule until the picture settles:</b> meditate at the Chapter 1 home spot before the chapter ends, keep a manual save at every chapter start, and never rely on mission replay — there is none.</p>
   </article>
 </section>
 
 <footer class="sources-footer">
   <h2>Sources &amp; honesty notes</h2>
-  <p>Names, descriptions and grades are PlayStation's official list as Exophase and PSNProfiles publish it (55 trophies; 28 hidden until earned). How-to steps and counts come from <b>PowerPyx</b> and <b>GTABase</b>; every guide names its sources beside it, as a dated list, and each guide is written in our own words. Seven trophies (In The Beginning…, Capital Offense, Personal Best, Bad Luck, I Guess, The Truth Is Out There, Ten Pin and Challenging Tank) have no confirmed unlock method at launch: their guides say so instead of guessing. There are <b>no online trophies</b> — every trophy is single-player and offline. Cheats disable trophies (PowerPyx). Works fully offline; progress lives only in your browser's localStorage until you export it.</p>
+  <p>Names, descriptions and grades are PlayStation's official list as Exophase publishes it (55 trophies; 28 hidden until earned). How-to steps and counts come from <b>PowerPyx</b> and <b>GTABase</b>; every guide names its sources beside it, as a dated list, and each guide is written in our own words. The full list is corroborated by <b>KeenGamer</b>, <b>OutputLag</b> and <b>eGamers</b> (read 20 Nov 2026). Seven trophies (In The Beginning…, Capital Offense, Personal Best, Bad Luck, I Guess, The Truth Is Out There, Ten Pin and Challenging Tank) have no confirmed unlock method at launch: their guides say so instead of guessing. There are <b>no online trophies</b> — every trophy is single-player and offline. Cheats disable trophies (PowerPyx). Works fully offline; progress lives only in your browser's localStorage until you export it.</p>
 </footer>
 
 <script type="module" src="app.js"></script>
