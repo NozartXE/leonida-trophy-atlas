@@ -1,1 +1,38 @@
-[{"file":"1-cover-dusk-atlas.jpg","note":"Cover: progress card 13/55, counted kind pills (All 55, Story 27, Missable 1, Collectibles 6, Activities 22, Online 0), spoiler masking on (unearned hidden trophies shown as 'Hidden trophy — earn it to reveal'), checklist left, and the COMPLETE Positive Mental Attitude guide open right — full text with closing line, live counter at 9/18 with stepper, and its full bulleted Sources list (PowerPyx, GTABase, Exophase, PSNProfiles, read 19 Nov 2026). While a guide is open the roadmap strip collapses and the missable banner compacts to one line. Demo state (?demo=1) seeds 13 earned trophies and mid-count counters (PMA 9/18, WAiNKer 42/100, Whip It Good 57/100) — sample state, disclosed here and in app/state.js.","path":"/?demo=1&select=28","viewport":{"height":800,"width":1280}},{"file":"2-roadmap.jpg","note":"Roadmap view: seven stages (13/7/6/5/13/8/3 = 55, counts computed from the data) with per-stage earned counts and hour estimates, under a totals header from the cited roadmap guides (~200 hours total, difficulty 4/10, 1 playthrough, no mission replay, manual saves at chapter starts, cheats disable trophies; per-stage hours labelled estimates). Demo state as in the cover.","path":"/?demo=1&view=roadmap","viewport":{"height":800,"width":1280}},{"file":"3-missables.jpg","note":"Missables view: the argued case — Positive Mental Attitude as the only possibly-missable trophy (PowerPyx + GTABase), its Chapter 1 point of no return and the manual-save rule, why nothing else is currently considered missable, and the honest unknowns (the 7 unconfirmed-method trophies are 'method not yet known', not certified non-missable; PlanetGTA6 notes no reliable missable list exists yet). Demo state as in the cover.","path":"/?demo=1&view=missables","viewport":{"height":800,"width":1280}},{"file":"4-waink-collectible.jpg","note":"Collectibles filter with the COMPLETE You WAiNKer! guide open: full text with closing line, live counter at 42/100 with stepper, bulleted Sources list (PowerPyx, GTABase, read 19 Nov 2026), and per-row counter chips (9/18, 0/3, 42/100, 57/100). Demo state as in the cover.","path":"/?demo=1&kind=collectibles&select=31","viewport":{"height":800,"width":1280}}]
+[
+  {
+    "file": "1-cover-dusk-atlas.jpg",
+    "note": "Cover: audit strip (Platinum 1 \u00b7 Gold 2 \u00b7 Silver 6 \u00b7 Bronze 46 \u00b7 28 hidden \u00b7 55/55 guides cite a source \u00b7 7 methods unknown \u00b7 read 19 Nov 2026) with per-stage chips S1 3/13 \u2026 S7 1/3, progress card 13/55 with '42 to go \u00b7 Next up: Positive Mental Attitude \u2014 9/18', counted kind pills (All 55, Story 27, Missable 1 flagged \u00b7 7 method unknown, Collectibles 6, Activities 22, Online 0 greyed), spoiler masking on, checklist left with per-row stage/kind/source/counter chips and REVEAL on masked rows, and the COMPLETE Positive Mental Attitude guide open right \u2014 OFFICIAL DESCRIPTION box with footnote [3], numbered steps with claim-level footnotes [1]/[2], live counter at 9/18 with stepper, and its numbered Sources list [1]\u2013[4]. While a guide is open the roadmap strip collapses and the missable banner compacts to one line. Demo state (?demo=1) seeds 13 earned trophies and mid-count counters (PMA 9/18, WAiNKer 42/100, Whip It Good 57/100) \u2014 sample state, disclosed here and in app/state.js.",
+    "path": "/?demo=1&select=28",
+    "viewport": {
+      "height": 800,
+      "width": 1280
+    }
+  },
+  {
+    "file": "2-roadmap.jpg",
+    "note": "Roadmap view: NEXT UP banner (Stage 1: Positive Mental Attitude \u2014 meditate at the Chapter 1 home spot before the chapter ends \u00b7 9/18) above the totals header (~200 hours total, difficulty 4/10, 1 playthrough, no mission replay, manual saves at chapter starts, cheats disable trophies), then seven stages (13/7/6/5/13/8/3 = 55, counts computed from the data) with per-stage earned counts, hour estimates, and live per-trophy counter chips inside every stage (9/18, 0/8, 0/500, 42/100, 57/100, 0/42, 0/20, 0/50, 0/10, 0/3, 0/5, $0k/$250k, $0k/$100k, 0/250, 0%). All seven stage cards fully in frame. Demo state as in the cover.",
+    "path": "/?demo=1&view=roadmap",
+    "viewport": {
+      "height": 800,
+      "width": 1280
+    }
+  },
+  {
+    "file": "3-missables.jpg",
+    "note": "Missables view rebuilt as a structured tracker: summary table (Trophy \u00b7 Verdict \u00b7 Point of no return \u00b7 Flagged by) with Positive Mental Attitude as the flagged row (Possibly missable \u00b7 End of Chapter 1 \u00b7 PowerPyx + GTABase \u00b7 live counter 9/18 \u00b7 Open guide link) and the 7 unknown-method trophies as linked rows with UNKNOWN badges (Challenging Tank, In The Beginning\u2026, Capital Offense, Personal Best, Bad Luck, I Guess, The Truth Is Out There, Ten Pin \u2014 Method not yet known \u00b7 Not yet known \u00b7 PowerPyx + GTABase), then the flagged-trophy case, why nothing else is currently considered missable, and the working rule. Demo state as in the cover.",
+    "path": "/?demo=1&view=missables",
+    "viewport": {
+      "height": 800,
+      "width": 1280
+    }
+  },
+  {
+    "file": "4-waink-collectible.jpg",
+    "note": "Collectibles filter with the COMPLETE You WAiNKer! guide open: OFFICIAL DESCRIPTION box with footnote [3], numbered steps with claim-level footnotes [1]/[2], live counter at 42/100 with stepper, numbered Sources list [1]\u2013[3] (PowerPyx, GTABase, Exophase \u2014 now 3 sources), and per-row stage/kind/source/counter chips (9/18, 0/3, 42/100, 57/100). Demo state as in the cover.",
+    "path": "/?demo=1&kind=collectibles&select=31",
+    "viewport": {
+      "height": 800,
+      "width": 1280
+    }
+  }
+]

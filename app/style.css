@@ -42,7 +42,18 @@ button { cursor: pointer; }
 .progress-bar { height: 10px; background: var(--ink); border-radius: 6px; margin: 8px 0; overflow: hidden; }
 .progress-bar div { height: 100%; background: linear-gradient(90deg, var(--amber), var(--gold)); border-radius: 6px; width: 0%; }
 .progress-grades { margin: 0; font-size: 13px; color: var(--cream-dim); }
+body.guide-open .progress-grades, body.view-roadmap .progress-grades, body.view-missables .progress-grades { display: none; }
+body.guide-open .progress-note, body.view-roadmap .progress-note, body.view-missables .progress-note { display: block; }
 .progress-note { margin: 4px 0 0; font-size: 12px; color: var(--cream-dim); }
+
+/* View navigation */
+.audit-strip {
+  background: var(--ink-3); border: 1px solid var(--amber); border-radius: 8px;
+  padding: 3px 10px; margin: 0 0 8px; font-size: 12px; color: var(--cream-dim);
+}
+.audit-strip .audit-label { color: var(--amber); font-weight: 800; letter-spacing: 1.4px; margin-right: 6px; }
+.audit-stages { margin-left: 8px; white-space: nowrap; }
+.audit-stage { color: var(--amber-soft); font-weight: 700; margin-right: 8px; }
 
 /* View navigation */
 .view-nav { display: flex; gap: 6px; margin: 2px 0 10px; }
@@ -63,6 +74,16 @@ button { cursor: pointer; }
   background: var(--amber); color: #241300; border: 0; border-radius: 6px; padding: 6px 10px; font-weight: 700; white-space: nowrap;
 }
 
+/* NEXT UP banner — computed from tracker state, shown above the roadmap facts */
+.next-up {
+  display: flex; gap: 8px; align-items: center; background: var(--ink-3);
+  border: 1px solid var(--line); border-left: 5px solid var(--amber);
+  border-radius: 8px; padding: 5px 10px; font-size: 12.5px; margin-bottom: 8px;
+}
+.next-up b { color: var(--amber-soft); }
+.next-up span { flex: 1; }
+.next-up a { white-space: nowrap; }
+
 /* Roadmap strip */
 .roadmap-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 10px 0; }
 .roadmap-strip .stage {
@@ -76,10 +97,9 @@ button { cursor: pointer; }
    focused views (roadmap, missables) compact the masthead the same way. */
 body.guide-open .roadmap-strip { display: none; }
 body.guide-open .masthead, body.view-roadmap .masthead, body.view-missables .masthead { padding: 10px 0 6px; }
-body.guide-open h1, body.view-roadmap h1, body.view-missables h1 { font-size: 25px; }
-body.guide-open .tagline, body.view-roadmap .tagline, body.view-missables .tagline,
-body.guide-open .progress-note, body.view-roadmap .progress-note, body.view-missables .progress-note { display: none; }
-body.guide-open .progress-card { padding: 9px 12px; }
+body.guide-open h1, body.view-roadmap h1, body.view-missables h1 { font-size: 23px; }
+body.guide-open .tagline, body.view-roadmap .tagline, body.view-missables .tagline { display: none; }
+body.guide-open .progress-card { padding: 7px 12px; }
 /* With a guide open, the banner compacts to a one-line alert — the open
    guide itself carries the full missable warning. Guide closed, the
    banner returns to full size. */
@@ -87,8 +107,9 @@ body.guide-open .missable-banner { font-size: 12.5px; padding: 5px 10px; margin-
 body.guide-open .missable-banner span { display: none; }
 body.guide-open .view-nav { margin-bottom: 6px; }
 body.guide-open .view-nav a { padding: 4px 10px; }
-body.guide-open .masthead { padding: 8px 0 4px; }
-body.guide-open .toolbar { padding: 6px 8px; margin-bottom: 8px; }
+body.guide-open .masthead, body.view-roadmap .masthead, body.view-missables .masthead { padding: 6px 0 3px; }
+body.guide-open .toolbar { padding: 5px 8px; margin-bottom: 6px; }
+body.guide-open .guide-panel { padding: 8px 10px; }
 /* Compact progress card in the focused states (guide open, roadmap and
    missables views) so the content below owns the frame. */
 body.guide-open .progress-big, body.view-roadmap .progress-big, body.view-missables .progress-big { font-size: 21px; }
@@ -99,16 +120,18 @@ body.view-missables .kicker { display: none; }
 /* Toolbar */
 .toolbar {
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-  background: var(--ink-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px;
+  background: var(--ink-2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; margin-bottom: 8px;
 }
 .toolbar label { font-size: 12.5px; color: var(--cream-dim); }
-.search input { width: 150px; background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 5px 7px; }
+.search input { width: 140px; background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 5px 7px; }
 .kind-filters { display: flex; gap: 4px; }
 .kind-filters button, .file-actions button, .import-label {
-  background: var(--ink-3); border: 1px solid var(--line); border-radius: 6px; padding: 5px 7px; font-size: 12.5px;
+  background: var(--ink-3); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; font-size: 12px;
 }
 .kind-filters button.active { background: var(--amber); color: #241300; border-color: var(--amber); font-weight: 700; }
-.grade select { background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px; }
+.kind-filters button { max-width: 180px; line-height: 1.25; }
+.kind-filters button.empty { opacity: .45; }
+.grade select { background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 4px; }
 .spoiler { display: flex; gap: 5px; align-items: center; }
 .file-actions { display: flex; gap: 6px; margin-left: auto; }
 .import-label input { display: none; }
@@ -117,6 +140,9 @@ body.view-missables .kicker { display: none; }
 .layout { display: grid; grid-template-columns: 1fr 470px; gap: 12px; align-items: start; }
 .checklist, .guide-panel { background: var(--ink-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
 .list-hint { margin: 0 0 8px; font-size: 12.5px; color: var(--cream-dim); }
+.list-controls { display: flex; gap: 8px; margin: 0 0 6px; }
+.list-controls label { font-size: 12.5px; color: var(--cream-dim); }
+.list-controls select { background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 4px 6px; font-size: 12.5px; }
 #trophyList { list-style: none; margin: 0; padding: 0; }
 #trophyList li {
   display: flex; gap: 9px; align-items: flex-start; padding: 8px 6px;
@@ -124,7 +150,7 @@ body.view-missables .kicker { display: none; }
 }
 #trophyList li:hover { background: var(--ink-3); }
 #trophyList li.selected { background: var(--ink-3); outline: 1px solid var(--amber); }
-#trophyList li.earned .t-name { text-decoration: line-through; color: var(--good); }
+#trophyList li.earned .t-name { color: var(--good); }
 #trophyList input[type="checkbox"] { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--amber); flex: 0 0 auto; }
 .t-body { flex: 1; min-width: 0; }
 .t-name { font-weight: 700; font-size: 14px; }
@@ -141,6 +167,10 @@ body.view-missables .kicker { display: none; }
 .chip.hidden { border-color: #7a6aa8; color: #cfc4f0; }
 .chip.missable { border-color: var(--danger); color: var(--danger); }
 .chip.count { border-color: var(--amber); color: var(--amber-soft); }
+.chip.stage { border-color: var(--teal); color: #9fd8d3; }
+.chip.src { text-transform: none; letter-spacing: 0; font-weight: 600; }
+.chip.unknown { border-color: #b06ac9; color: #e0b8f0; }
+.chip.reveal { border-color: var(--amber); color: var(--amber-soft); }
 
 /* Guide panel (right column) — always the COMPLETE guide, never truncated */
 .guide-panel { position: sticky; top: 8px; }
@@ -150,18 +180,25 @@ body.view-missables .kicker { display: none; }
   background: var(--ink-3); border: 1px solid var(--line); border-radius: 6px;
   padding: 2px 8px; font-size: 11.5px; white-space: nowrap;
 }
-.guide-panel h2 { font-size: 18px; color: var(--cream); margin: 2px 0 2px; }
-.guide-panel .g-desc { color: var(--cream-dim); font-size: 12.5px; margin: 0 0 6px; font-style: italic; }
+.guide-panel h2 { font-size: 17px; color: var(--cream); margin: 2px 0 2px; }
+.guide-panel .g-official {
+  border: 1px solid var(--amber); border-left: 4px solid var(--amber); border-radius: 6px;
+  padding: 4px 8px; margin: 0 0 5px; font-size: 12px; background: var(--ink-3);
+}
+.g-official-label { font-size: 10.5px; letter-spacing: 1.4px; color: var(--amber); font-weight: 700; text-transform: uppercase; margin-right: 4px; }
+.g-official-text { color: var(--cream-dim); font-style: italic; }
+.g-foot { color: var(--amber-soft); font-size: 10px; font-weight: 700; }
 .guide-panel .g-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
-.guide-panel h3 { font-size: 12px; letter-spacing: 1.4px; color: var(--amber-soft); margin: 7px 0 3px; text-transform: uppercase; }
-.guide-panel p { font-size: 12.5px; line-height: 1.4; margin: 0 0 6px; }
+.guide-panel h3 { font-size: 12px; letter-spacing: 1.4px; color: var(--amber-soft); margin: 5px 0 2px; text-transform: uppercase; }
+.guide-panel p { font-size: 11.5px; line-height: 1.3; margin: 0 0 4px; }
 .guide-panel .g-step strong { color: var(--amber-soft); }
 .guide-panel .g-closed { font-size: 13.5px; color: var(--cream-dim); }
-.guide-panel .g-sources-list { margin: 0 0 4px; padding-left: 18px; font-size: 11.5px; line-height: 1.35; color: var(--cream-dim); }
+.guide-panel .g-sources-list { margin: 0 0 4px; padding-left: 0; list-style: none; font-size: 10.5px; line-height: 1.25; color: var(--cream-dim); }
+.g-src-n { color: var(--amber-soft); font-weight: 800; }
 .guide-panel .g-sources-list li { margin-bottom: 1px; }
 .guide-panel .g-sources-list b { color: var(--cream); }
 .guide-panel .g-warn {
-  background: #3a1d12; border: 1px solid #a34a2a; border-radius: 6px; padding: 6px 9px; font-size: 12.5px; margin: 0 0 7px;
+  background: #3a1d12; border: 1px solid #a34a2a; border-radius: 6px; padding: 5px 8px; font-size: 11.5px; margin: 0 0 5px;
 }
 .guide-panel .g-earn { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
 .guide-panel .g-earn span { font-size: 12.5px; color: var(--cream-dim); }
@@ -170,7 +207,7 @@ body.view-missables .kicker { display: none; }
 .g-counter {
   display: flex; gap: 9px; align-items: center;
   background: var(--ink-3); border: 1px solid var(--line); border-left: 4px solid var(--amber);
-  border-radius: 8px; padding: 6px 10px; margin: 6px 0 2px;
+  border-radius: 8px; padding: 4px 10px; margin: 5px 0 2px;
 }
 .g-counter-label { font-size: 11px; letter-spacing: 1.4px; color: var(--amber); font-weight: 700; text-transform: uppercase; }
 .g-counter-value { font-size: 16px; font-weight: 800; color: var(--cream); }
@@ -197,6 +234,14 @@ body.view-missables .kicker { display: none; }
 .stage-card ul { margin: 0; padding-left: 16px; font-size: 12.5px; }
 .stage-card li { margin-bottom: 3px; }
 .stage-card li.earned { color: var(--good); }
+.stage-counter { color: var(--amber-soft); font-weight: 700; }
+
+/* Missables summary table: Trophy · Verdict · Point of no return · Flagged by */
+.miss-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 10px; }
+.miss-table th, .miss-table td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.miss-table th { color: var(--amber-soft); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; }
+.miss-table tr.miss-flagged td { background: #3a1d12; }
+.miss-table .chip { vertical-align: middle; }
 
 /* Missables view */
 .missables-full { display: none; margin-top: 14px; background: var(--ink-2); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
@@ -221,26 +266,31 @@ body.view-roadmap .view-nav { margin-bottom: 8px; }
 body.view-roadmap .roadmap-full { padding: 8px 12px; }
 body.view-roadmap .roadmap-full h2 { margin-bottom: 4px; }
 body.view-roadmap .roadmap-facts { margin-bottom: 6px; gap: 5px; }
+body.view-roadmap .roadmap-facts-note { display: none; }
+body.view-roadmap .next-up { margin-bottom: 6px; padding: 4px 10px; font-size: 12px; }
+body.view-roadmap .missable-banner { display: none; }
 body.view-roadmap .stage-cards { grid-template-columns: repeat(4, 1fr); gap: 6px; }
-body.view-roadmap .stage-card { padding: 6px 7px; }
+body.view-roadmap .stage-card { padding: 5px 6px; }
 body.view-roadmap .stage-card h3 { font-size: 13px; }
-body.view-roadmap .stage-card ul { font-size: 10px; line-height: 1.15; }
+body.view-roadmap .stage-card ul { font-size: 9.5px; line-height: 1.1; }
 body.view-roadmap .stage-card li { margin-bottom: 1px; }
 body.view-roadmap .stage-card .stage-count { font-size: 11.5px; margin-bottom: 2px; }
-body.view-roadmap .stage-card .stage-blurb { font-size: 11px; line-height: 1.2; }
+body.view-roadmap .stage-card .stage-blurb { font-size: 10.5px; line-height: 1.15; }
 body.view-roadmap .roadmap-facts .fact { font-size: 12px; padding: 1px 9px; }
 body.view-roadmap .roadmap-facts-note { font-size: 11.5px; }
 
 /* Missables-only view: the argument gets the whole frame */
 body.view-missables .layout, body.view-missables .missable-banner, body.view-missables .roadmap-strip,
 body.view-missables .toolbar, body.view-missables .roadmap-full { display: none; }
-body.view-missables .missables-full { display: block; margin-top: 8px; padding: 10px 12px; }
+body.view-missables .missables-full { display: block; margin-top: 8px; padding: 8px 12px; }
 body.view-missables .missables-lede { font-size: 12.5px; line-height: 1.4; margin-bottom: 8px; }
-body.view-missables .missable-case { padding: 8px 10px; margin-bottom: 8px; }
+body.view-missables .missable-case { padding: 6px 10px; margin-bottom: 6px; }
 body.view-missables .missable-case h3 { font-size: 14px; margin-bottom: 4px; }
-body.view-missables .missable-case p { font-size: 12.5px; line-height: 1.4; margin-bottom: 5px; }
+body.view-missables .missable-case p { font-size: 12px; line-height: 1.35; margin-bottom: 4px; }
+body.view-missables .miss-table { font-size: 12px; margin-bottom: 8px; }
+body.view-missables .miss-table th, body.view-missables .miss-table td { padding: 3px 6px; }
 body.view-missables .missable-case ul { font-size: 12.5px; line-height: 1.4; }
-body.view-missables .missable-case li { margin-bottom: 3px; }
+body.view-missables .missable-case li { margin-bottom: 2px; }
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
   .guide-panel { position: static; }

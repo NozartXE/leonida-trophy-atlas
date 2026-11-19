@@ -21,6 +21,8 @@
   </section>
 </header>
 
+<div class="audit-strip" id="auditStrip"><span class="audit-label">AUDIT</span> Platinum 1 &middot; Gold 2 &middot; Silver 6 &middot; Bronze 46 &middot; 28 hidden &middot; 55/55 guides cite a source &middot; 7 methods unknown &middot; read 19 Nov 2026 <span class="audit-stages" id="auditStages"></span></div>
+
 <nav class="view-nav" aria-label="Views">
   <a href="./" data-view-link="checklist">Checklist</a>
   <a href="?view=roadmap" data-view-link="roadmap">Roadmap</a>
@@ -36,7 +38,7 @@
 <nav class="roadmap-strip" id="roadmapStrip" aria-label="Roadmap to platinum"></nav>
 
 <div class="toolbar">
-  <label class="search">Search <input id="searchBox" type="search" placeholder="Trophy, mission or keyword…" autocomplete="off"></label>
+  <label class="search">Search <input id="searchBox" type="search" placeholder="Search trophies…" autocomplete="off"></label>
   <div class="kind-filters" id="kindFilters" role="group" aria-label="Filter by kind">
     <button type="button" data-kind="all" class="active">All</button>
     <button type="button" data-kind="story">Story</button>
@@ -65,6 +67,28 @@
 <main class="layout">
   <section class="checklist" aria-label="Trophy checklist">
     <h2 id="listHeading">Checklist <span id="listCount"></span></h2>
+    <div class="list-controls">
+      <label class="stage">Stage
+        <select id="stageSelect">
+          <option value="all">All stages</option>
+          <option value="1">S1 · Story first</option>
+          <option value="2">S2 · Strangers</option>
+          <option value="3">S3 · Story moments</option>
+          <option value="4">S4 · Collectibles</option>
+          <option value="5">S5 · Activities</option>
+          <option value="6">S6 · Robberies</option>
+          <option value="7">S7 · Final grind</option>
+        </select>
+      </label>
+      <label class="sort">Sort
+        <select id="sortSelect">
+          <option value="roadmap">Roadmap order</option>
+          <option value="name">Name A–Z</option>
+          <option value="grade">Grade</option>
+          <option value="count">Counter progress</option>
+        </select>
+      </label>
+    </div>
     <p class="list-hint" id="listHint"></p>
     <ol id="trophyList"></ol>
   </section>
@@ -73,6 +97,7 @@
 
 <section class="roadmap-full" id="roadmapFull" aria-label="Roadmap to platinum">
   <h2>Roadmap to the platinum — seven stages, in order</h2>
+  <div class="next-up" id="nextUpBanner" role="status"></div>
   <div class="roadmap-facts" id="roadmapFacts" aria-label="Roadmap totals"></div>
   <p class="roadmap-intro">Built from the official descriptions and grouped by pacing: story first (it unlocks the world and holds the one missable), side strands and story moments second, the collectible sweep and activity rounds next, robberies and money after that, and the final grind last.</p>
   <div class="stage-cards" id="stageCards"></div>
@@ -80,29 +105,26 @@
 
 <section class="missables-full" id="missablesFull" aria-label="Missables — the honest case">
   <h2>Missables — the honest case</h2>
-  <p class="missables-lede">One trophy is flagged as possibly missable by the guides we cite. Everything else is, on current evidence, earnable whenever you get to it — and seven trophies are not known well enough yet for anyone to certify them either way. This page argues each part of that, with sources, instead of just asserting it.</p>
+  <p class="missables-lede">One trophy is flagged as possibly missable by the guides we cite. Seven more are not known well enough yet for anyone to certify them either way — their methods are still unknown, so this table does not call them safe. Every row links to its guide.</p>
+
+  <table class="miss-table" aria-label="Missable and unknown-method trophies">
+    <thead><tr><th>Trophy</th><th>Verdict</th><th>Point of no return</th><th>Flagged by</th><th></th></tr></thead>
+    <tbody id="missablesRows"></tbody>
+  </table>
 
   <article class="missable-case">
     <h3>The one flagged trophy: Positive Mental Attitude</h3>
-    <p><b>What it asks:</b> meditate at every meditation spot across Leonida — 18 spots in 10 locations, for both Jason and Lucia.</p>
-    <p><b>Why it can be missed:</b> the first spot is offered at home in Chapter 1 — meditate at Jason's house, the balcony spot tied to the Down to Earth moment — and it becomes unavailable once Chapter 1 ends. There is no mission replay, so a missed Chapter 1 spot cannot be gone back for on the same save.</p>
-    <p><b>The point of no return:</b> the end of Chapter 1. Before you finish it, meditate at the home spot, and keep a manual save made at the start of Chapter 1 so the chapter can be restarted if the spot was skipped. A manual save at the start of every later chapter is the same insurance, cheaply bought.</p>
-    <p><b>Who flags it:</b> PowerPyx (powerpyx.com) and GTABase (gtabase.com) both name Positive Mental Attitude as the only possibly-missable trophy — read 19 Nov 2026. Note the wording: <i>possibly</i> missable. Neither guide states it as proven.</p>
+    <p><b>What it asks:</b> meditate at every meditation spot across Leonida — 18 spots in 10 locations, for both Jason and Lucia. <b>Why it can be missed:</b> the first spot is offered at home in Chapter 1 — the balcony spot tied to the Down to Earth moment — and it becomes unavailable once Chapter 1 ends. There is no mission replay, so a missed Chapter 1 spot cannot be gone back for on the same save.</p>
+    <p><b>The point of no return:</b> the end of Chapter 1. Before you finish it, meditate at the home spot, and keep a manual save made at the start of Chapter 1 so the chapter can be restarted if the spot was skipped. <b>Who flags it:</b> PowerPyx (powerpyx.com) and GTABase (gtabase.com) both name Positive Mental Attitude as the only possibly-missable trophy — read 19 Nov 2026. Note the wording: <i>possibly</i> missable. Neither guide states it as proven.</p>
   </article>
 
   <article class="missable-case">
     <h3>Why nothing else is currently considered missable</h3>
     <ul>
-      <li><b>Chapter and mission trophies</b> (Chapters 1–4, the finale, the named story missions) pop from required story beats. Story missions cannot be skipped past, and the game cannot be finished without playing them — so they cannot be walked past by accident.</li>
-      <li><b>Stranger strands</b> stay available after the story ends, per PowerPyx and GTABase — a strand not started yet is a strand still waiting, not a strand lost.</li>
-      <li><b>Collectibles and activities</b> (meditation spots beyond the first, WAiNK locations, vehicles, cards, ranges, races, robberies) all remain in the open world after the story, per the same guides. The world does not close behind you; only the Chapter 1 home spot is chapter-locked.</li>
+      <li><b>Chapter and mission trophies</b> pop from required story beats — story missions cannot be skipped past, so they cannot be walked past by accident.</li>
+      <li><b>Stranger strands, collectibles and activities</b> stay available after the story ends, per PowerPyx and GTABase — the world does not close behind you; only the Chapter 1 home spot is chapter-locked.</li>
       <li><b>The platinum itself</b> only waits for the other 54 — it has no condition of its own that could be missed.</li>
     </ul>
-  </article>
-
-  <article class="missable-case">
-    <h3>What we honestly do not know yet</h3>
-    <p>Seven trophies have <b>no confirmed unlock method</b> at launch, per PowerPyx and GTABase: In The Beginning…, Capital Offense, Personal Best, Bad Luck, I Guess, The Truth Is Out There, Ten Pin and Challenging Tank. For those, "method not yet known" is the truthful label — it is <b>not</b> a certificate that they cannot be missed, and this atlas does not claim otherwise. If one of them turns out to hang on a one-time story moment, its guide here will be corrected.</p>
     <p>PlanetGTA6 (planetgta6.com), cross-checking the official list against Exophase and PSNProfiles, notes that <b>no reliable missable list exists yet</b> — read 19 Nov 2026. The one-flag picture above is the best current evidence, stated with its uncertainty intact — not a settled fact about the game.</p>
     <p class="missables-rule"><b>The working rule until the picture settles:</b> meditate at the Chapter 1 home spot before the chapter ends, keep a manual save at every chapter start, and never rely on mission replay — there is none.</p>
   </article>

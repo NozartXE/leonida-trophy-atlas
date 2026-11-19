@@ -2,8 +2,14 @@
 // round added the same day: complete guides rendered in frame (no
 // truncation), live per-trophy counters, counted filter pills, a 7-stage
 // roadmap with cited planning totals, a dedicated missables view, and
-// structured dated Sources lists. Hands in app/ and screenshots/ with
-// the vendored make.fun dossier builder, unchanged.
+// structured dated Sources lists. Density round (2026-11-20) added:
+// claim-level footnote markers in every guide keyed to numbered Sources,
+// a one-line audit strip with per-stage chips, counters inside the
+// roadmap stages + a computed NEXT UP banner, the missables page rebuilt
+// as a structured tracker, a uniform guide standard (numbered steps,
+// OFFICIAL DESCRIPTION box, >=3 dated sources per guide), stage/sort
+// facets and per-row stage/kind/source/counter chips. Hands in app/ and
+// screenshots/ with the vendored make.fun dossier builder, unchanged.
 // A working gta6-trophy-guide-01 entry (Node 22, standard library only): the guide is this directory's app/ folder,
 // plain static files a browser opens at app/index.html (ES modules, CSS, no build step), offline: it loads nothing
 // over the network, and its trophy list and guides are app/data/trophies.json. The program hands it in: it copies app/
