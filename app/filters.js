@@ -17,14 +17,21 @@ export function isMethodUnknown(trophy) {
   return /not yet confirmed|not pinned|under investigation|No confirmed step-by-step/.test(trophy.guide);
 }
 
+// A masked row is varied honestly from non-spoiler metadata already in the
+// data — its list number, stage, kind, grade and counter — so no two
+// visible masked rows share identical text. The number is the trophy's
+// position in the official 55 list; it reveals nothing about the trophy.
 export function displayNameFor(trophy, earnedIds, spoilersHidden) {
-  return isStorySpoiler(trophy, earnedIds, spoilersHidden) ? 'Hidden trophy — earn it to reveal' : trophy.name;
+  if (!isStorySpoiler(trophy, earnedIds, spoilersHidden)) return trophy.name;
+  return `Hidden · №${trophy.id} · S${trophy.stage} · ${trophy.kind} · ${trophy.grade}`;
 }
 
-export function displayDescriptionFor(trophy, earnedIds, spoilersHidden) {
-  return isStorySpoiler(trophy, earnedIds, spoilersHidden)
-    ? 'A hidden story trophy. Its name and description stay secret until you earn it.'
-    : trophy.description;
+export function displayDescriptionFor(trophy, earnedIds, spoilersHidden, counterLabel = null) {
+  if (!isStorySpoiler(trophy, earnedIds, spoilersHidden)) return trophy.description;
+  const bits = [`Stage ${trophy.stage}`, trophy.kind, trophy.grade];
+  if (counterLabel) bits.push(counterLabel);
+  if (isMethodUnknown(trophy)) bits.push('method unknown');
+  return `Hidden ${trophy.kind} trophy — ${bits.join(' · ')} — earn it to reveal.`;
 }
 
 const GRADE_RANK = { platinum: 0, gold: 1, silver: 2, bronze: 3 };
@@ -58,7 +65,7 @@ export function filterHintFor(kind, grade, query, shownCount, totalCount) {
     return 'Online: 0 trophies — GTA 6 has no online trophies. Every trophy is single-player and offline (PowerPyx, GTABase).';
   }
   const parts = [`Showing ${shownCount} of ${totalCount} trophies`];
-  if (kind === 'missable') parts.push('1 flagged possibly missable + 7 method unknown');
+  if (kind === 'missable') parts.push('1 flagged possibly missable + 7 method unknown · 2 watch (Strangers & Freaks, A Long Road) in the missables view');
   else if (kind && kind !== 'all') parts.push(`kind: ${kind}`);
   if (grade && grade !== 'all') parts.push(`grade: ${grade}`);
   if (query) parts.push(`matching “${query}”`);

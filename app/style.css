@@ -34,7 +34,7 @@ button { cursor: pointer; }
 .kicker { margin: 0; font-size: 11px; letter-spacing: 2.2px; color: var(--amber); font-weight: 700; }
 .tagline { margin: 0; color: var(--cream-dim); font-size: 13.5px; max-width: 560px; }
 .progress-card {
-  flex: 0 0 340px; background: var(--ink-3); border: 1px solid var(--line);
+  flex: 0 0 380px; background: var(--ink-3); border: 1px solid var(--line);
   border-left: 4px solid var(--amber); border-radius: 10px; padding: 12px 14px;
 }
 .progress-big { margin: 0; font-size: 26px; font-weight: 800; }
@@ -42,15 +42,20 @@ button { cursor: pointer; }
 .progress-bar { height: 10px; background: var(--ink); border-radius: 6px; margin: 8px 0; overflow: hidden; }
 .progress-bar div { height: 100%; background: linear-gradient(90deg, var(--amber), var(--gold)); border-radius: 6px; width: 0%; }
 .progress-grades { margin: 0; font-size: 13px; color: var(--cream-dim); }
-body.guide-open .progress-grades, body.view-roadmap .progress-grades, body.view-missables .progress-grades { display: none; }
-body.guide-open .progress-note, body.view-roadmap .progress-note, body.view-missables .progress-note { display: block; }
+/* The grades line is visible in ALL states (R4 hid it in compact states,
+   which the panel called a regression). Next up stays a second line
+   below it, in .progress-note — never a replacement for the grades. */
+.progress-psn { margin: 2px 0 0; font-size: 11.5px; color: var(--amber-soft); }
 .progress-note { margin: 4px 0 0; font-size: 12px; color: var(--cream-dim); }
 
-/* View navigation */
+/* The audit strip lives ONLY on the roadmap frame (R4 showed it on all
+   four frames; the panel called it microtext clutter). */
 .audit-strip {
+  display: none;
   background: var(--ink-3); border: 1px solid var(--amber); border-radius: 8px;
   padding: 3px 10px; margin: 0 0 8px; font-size: 12px; color: var(--cream-dim);
 }
+body.view-roadmap .audit-strip { display: block; }
 .audit-strip .audit-label { color: var(--amber); font-weight: 800; letter-spacing: 1.4px; margin-right: 6px; }
 .audit-stages { margin-left: 8px; white-space: nowrap; }
 .audit-stage { color: var(--amber-soft); font-weight: 700; margin-right: 8px; }
@@ -97,9 +102,9 @@ body.guide-open .progress-note, body.view-roadmap .progress-note, body.view-miss
    focused views (roadmap, missables) compact the masthead the same way. */
 body.guide-open .roadmap-strip { display: none; }
 body.guide-open .masthead, body.view-roadmap .masthead, body.view-missables .masthead { padding: 10px 0 6px; }
-body.guide-open h1, body.view-roadmap h1, body.view-missables h1 { font-size: 23px; }
+body.guide-open h1, body.view-roadmap h1, body.view-missables h1 { font-size: 20px; }
 body.guide-open .tagline, body.view-roadmap .tagline, body.view-missables .tagline { display: none; }
-body.guide-open .progress-card { padding: 7px 12px; }
+body.guide-open .progress-card { padding: 5px 12px; }
 /* With a guide open, the banner compacts to a one-line alert — the open
    guide itself carries the full missable warning. Guide closed, the
    banner returns to full size. */
@@ -112,9 +117,12 @@ body.guide-open .toolbar { padding: 5px 8px; margin-bottom: 6px; }
 body.guide-open .guide-panel { padding: 8px 10px; }
 /* Compact progress card in the focused states (guide open, roadmap and
    missables views) so the content below owns the frame. */
-body.guide-open .progress-big, body.view-roadmap .progress-big, body.view-missables .progress-big { font-size: 21px; }
-body.guide-open .progress-bar, body.view-roadmap .progress-bar, body.view-missables .progress-bar { margin: 4px 0; }
-body.view-roadmap .progress-card, body.view-missables .progress-card { padding: 8px 12px; }
+body.guide-open .progress-big, body.view-roadmap .progress-big, body.view-missables .progress-big { font-size: 19px; }
+body.guide-open .progress-bar, body.view-roadmap .progress-bar, body.view-missables .progress-bar { margin: 2px 0; }
+body.guide-open .progress-grades, body.view-roadmap .progress-grades, body.view-missables .progress-grades { font-size: 12px; }
+body.guide-open .progress-psn, body.view-roadmap .progress-psn, body.view-missables .progress-psn { font-size: 11px; }
+body.guide-open .progress-note, body.view-roadmap .progress-note, body.view-missables .progress-note { font-size: 11.5px; margin-top: 2px; }
+body.view-roadmap .progress-card, body.view-missables .progress-card { padding: 6px 12px; }
 body.view-missables .kicker { display: none; }
 
 /* Toolbar */
@@ -168,7 +176,7 @@ body.view-missables .kicker { display: none; }
 .chip.missable { border-color: var(--danger); color: var(--danger); }
 .chip.count { border-color: var(--amber); color: var(--amber-soft); }
 .chip.stage { border-color: var(--teal); color: #9fd8d3; }
-.chip.src { text-transform: none; letter-spacing: 0; font-weight: 600; }
+.chip.watch { border-color: var(--amber); color: var(--amber); }
 .chip.unknown { border-color: #b06ac9; color: #e0b8f0; }
 .chip.reveal { border-color: var(--amber); color: var(--amber-soft); }
 
@@ -226,22 +234,58 @@ body.view-missables .kicker { display: none; }
   padding: 3px 10px; font-size: 12.5px; font-weight: 700; color: var(--amber-soft);
 }
 .roadmap-facts-note { flex: 1 1 100%; margin: 2px 0 0; font-size: 12px; color: var(--cream-dim); }
-.roadmap-intro { margin: 0 0 10px; font-size: 13.5px; color: var(--cream-dim); }
-.stage-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.stage-card { background: var(--ink-3); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+
+/* Roadmap full view — compact stage cards: title, earned/total, one-line
+   blurb and the stage's labelled counters. Cards size to content
+   (align-items: start), so no card carries dead space. */
+.stage-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-items: start; }
+.stage-card { background: var(--ink-3); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
 .stage-card h3 { margin: 0 0 2px; font-size: 14px; color: var(--amber-soft); }
-.stage-card .stage-count { font-size: 12px; color: var(--cream-dim); margin: 0 0 6px; }
-.stage-card ul { margin: 0; padding-left: 16px; font-size: 12.5px; }
-.stage-card li { margin-bottom: 3px; }
-.stage-card li.earned { color: var(--good); }
-.stage-counter { color: var(--amber-soft); font-weight: 700; }
+.stage-card .stage-count { font-size: 12px; color: var(--cream-dim); margin: 0 0 4px; }
+.stage-card .stage-blurb { font-size: 11px; line-height: 1.25; }
+.stage-card .stage-counters { font-size: 11px; color: var(--amber-soft); margin: 0; line-height: 1.3; }
+
+/* Citation matrix — 3 columns of 19/18/18 guides, per-source counts
+   computed from each guide's own footnote markers. */
+.citation-matrix { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+.citation-matrix h3 { margin: 0 0 2px; font-size: 13.5px; color: var(--amber-soft); }
+.matrix-summary { margin: 0 0 3px; font-size: 11.5px; color: var(--cream); font-weight: 700; }
+.matrix-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.matrix { width: 100%; border-collapse: collapse; font-size: 10px; line-height: 1.1; table-layout: fixed; }
+.matrix th, .matrix td { text-align: left; padding: 0 3px; border-bottom: 1px solid #1d3a44; vertical-align: middle; white-space: nowrap; overflow: hidden; }
+.matrix th { padding: 1px 3px; }
+.matrix th:nth-child(1), .matrix td.m-stage { width: 20px; }
+.matrix th:nth-child(2), .matrix td.m-name { width: auto; }
+.matrix th:nth-child(n+3):nth-child(-n+6), .matrix td.m-count { width: 30px; }
+.matrix th:nth-child(7), .matrix td.m-flag { width: 42px; }
+.matrix th { color: var(--amber-soft); font-size: 9px; letter-spacing: .6px; text-transform: uppercase; }
+.matrix .m-stage { color: var(--cream-dim); font-weight: 700; }
+.matrix .m-name { white-space: normal; color: var(--cream); }
+.matrix tr.earned .m-name { color: var(--good); }
+.matrix .m-count { text-align: center; font-weight: 700; }
+.matrix .m-count.zero { color: #5a7480; font-weight: 400; }
+.matrix .m-flag { text-align: center; font-weight: 800; font-size: 9px; }
+.matrix .m-flag.open { color: #e0b8f0; }
+.matrix .m-flag.\31-src { color: var(--amber-soft); }
+.matrix-note { margin: 3px 0 0; font-size: 10.5px; color: var(--cream-dim); }
+.saved-state { margin: 8px 0 0; font-size: 11.5px; color: var(--cream-dim); border-top: 1px solid var(--line); padding-top: 6px; }
+.saved-state code { color: var(--amber-soft); font-size: 10.5px; }
 
 /* Missables summary table: Trophy · Verdict · Point of no return · Flagged by */
 .miss-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 10px; }
 .miss-table th, .miss-table td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 .miss-table th { color: var(--amber-soft); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; }
 .miss-table tr.miss-flagged td { background: #3a1d12; }
+.miss-table tr.miss-watch td { background: #2c2410; }
+.miss-table tr.miss-unknown td { background: var(--ink-3); }
 .miss-table .chip { vertical-align: middle; }
+.miss-chip {
+  display: inline-block; font-size: 11px; font-weight: 700; color: var(--cream);
+  border: 1px solid var(--line); border-radius: 12px; padding: 1px 7px; margin: 1px 3px 1px 0;
+  text-decoration: none; white-space: nowrap;
+}
+.miss-chip:hover { border-color: var(--amber); color: var(--amber-soft); }
+.miss-note { font-size: 11.5px; color: var(--cream-dim); white-space: nowrap; }
 
 /* Missables view */
 .missables-full { display: none; margin-top: 14px; background: var(--ink-2); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
@@ -260,37 +304,53 @@ body.view-missables .kicker { display: none; }
 /* Roadmap-only view: hide the tracker grid, banner, strip and toolbar (the
    cards carry the content), show all seven stage cards in two rows */
 body.view-roadmap .layout, body.view-roadmap .missable-banner, body.view-roadmap .roadmap-strip, body.view-roadmap .toolbar { display: none; }
-body.view-roadmap .roadmap-full { margin-top: 8px; padding: 10px 12px; }
-body.view-roadmap .roadmap-intro { display: none; }
-body.view-roadmap .view-nav { margin-bottom: 8px; }
-body.view-roadmap .roadmap-full { padding: 8px 12px; }
+body.view-roadmap .roadmap-full { margin-top: 8px; padding: 5px 12px; }
+body.view-roadmap .view-nav { margin-bottom: 4px; }
+/* In the roadmap view the section title is redundant (the nav already
+   says Roadmap) and the progress note duplicates the NEXT UP banner
+   below it — both are hidden here only, to fund the citation matrix.
+   The h2 stays in the full-page view; the note stays on every other
+   frame. */
+body.view-roadmap .roadmap-full h2 { display: none; }
+body.view-roadmap .progress-note { display: none; }
+body.view-roadmap .masthead { padding: 6px 0 3px; }
+body.view-roadmap .progress-card { padding: 4px 12px; }
+body.view-roadmap .progress-big { font-size: 18px; }
 body.view-roadmap .roadmap-full h2 { margin-bottom: 4px; }
 body.view-roadmap .roadmap-facts { margin-bottom: 6px; gap: 5px; }
-body.view-roadmap .roadmap-facts-note { display: none; }
-body.view-roadmap .next-up { margin-bottom: 6px; padding: 4px 10px; font-size: 12px; }
-body.view-roadmap .missable-banner { display: none; }
-body.view-roadmap .stage-cards { grid-template-columns: repeat(4, 1fr); gap: 6px; }
-body.view-roadmap .stage-card { padding: 5px 6px; }
-body.view-roadmap .stage-card h3 { font-size: 13px; }
-body.view-roadmap .stage-card ul { font-size: 9.5px; line-height: 1.1; }
-body.view-roadmap .stage-card li { margin-bottom: 1px; }
-body.view-roadmap .stage-card .stage-count { font-size: 11.5px; margin-bottom: 2px; }
-body.view-roadmap .stage-card .stage-blurb { font-size: 10.5px; line-height: 1.15; }
-body.view-roadmap .roadmap-facts .fact { font-size: 12px; padding: 1px 9px; }
 body.view-roadmap .roadmap-facts-note { font-size: 11.5px; }
+body.view-roadmap .next-up { margin-bottom: 5px; padding: 3px 10px; font-size: 12px; }
+body.view-roadmap .missable-banner { display: none; }
+body.view-roadmap .stage-cards { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+body.view-roadmap .stage-card { padding: 5px 7px; }
+body.view-roadmap .stage-card h3 { font-size: 12px; white-space: nowrap; }
+body.view-roadmap .stage-card .stage-count { font-size: 11px; margin-bottom: 2px; }
+body.view-roadmap .stage-card .stage-blurb { font-size: 10.5px; line-height: 1.15; }
+body.view-roadmap .stage-card .stage-counters { font-size: 10.5px; line-height: 1.2; }
+body.view-roadmap .roadmap-facts .fact { font-size: 12px; padding: 1px 9px; }
+body.view-roadmap .citation-matrix { margin-top: 5px; padding-top: 4px; }
+body.view-roadmap .citation-matrix h3 { font-size: 12.5px; }
+body.view-roadmap .matrix-summary { font-size: 11px; margin-bottom: 4px; }
+body.view-roadmap .matrix-note { font-size: 10px; margin-top: 4px; }
+body.view-roadmap .saved-state { font-size: 11px; margin-top: 6px; padding-top: 5px; }
 
 /* Missables-only view: the argument gets the whole frame */
 body.view-missables .layout, body.view-missables .missable-banner, body.view-missables .roadmap-strip,
 body.view-missables .toolbar, body.view-missables .roadmap-full { display: none; }
-body.view-missables .missables-full { display: block; margin-top: 8px; padding: 8px 12px; }
-body.view-missables .missables-lede { font-size: 12.5px; line-height: 1.4; margin-bottom: 8px; }
-body.view-missables .missable-case { padding: 6px 10px; margin-bottom: 6px; }
-body.view-missables .missable-case h3 { font-size: 14px; margin-bottom: 4px; }
-body.view-missables .missable-case p { font-size: 12px; line-height: 1.35; margin-bottom: 4px; }
-body.view-missables .miss-table { font-size: 12px; margin-bottom: 8px; }
-body.view-missables .miss-table th, body.view-missables .miss-table td { padding: 3px 6px; }
-body.view-missables .missable-case ul { font-size: 12.5px; line-height: 1.4; }
-body.view-missables .missable-case li { margin-bottom: 2px; }
+body.view-missables .missables-full { display: block; margin-top: 8px; padding: 6px 12px; }
+body.view-missables .missables-full h2 { margin-bottom: 4px; }
+body.view-missables .missables-lede { font-size: 12.5px; line-height: 1.35; margin-bottom: 6px; }
+body.view-missables .missable-case { padding: 5px 10px; margin-bottom: 5px; }
+body.view-missables .missable-case:last-child { margin-bottom: 0; }
+body.view-missables .missable-case h3 { font-size: 14px; margin-bottom: 3px; }
+body.view-missables .missable-case p { font-size: 12px; line-height: 1.35; margin-bottom: 3px; }
+body.view-missables .miss-table { font-size: 11.5px; margin-bottom: 6px; }
+body.view-missables .miss-table th, body.view-missables .miss-table td { padding: 2px 6px; }
+body.view-missables .miss-table .miss-chip { font-size: 10.5px; padding: 1px 6px; }
+body.view-missables .missable-case ul { font-size: 12px; line-height: 1.35; }
+body.view-missables .missable-case li { margin-bottom: 1px; }
+body.view-missables .progress-card { padding: 6px 12px; }
+body.view-missables .progress-big { font-size: 18px; }
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
   .guide-panel { position: static; }

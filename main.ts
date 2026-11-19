@@ -8,7 +8,13 @@
 // roadmap stages + a computed NEXT UP banner, the missables page rebuilt
 // as a structured tracker, a uniform guide standard (numbered steps,
 // OFFICIAL DESCRIPTION box, >=3 dated sources per guide), stage/sort
-// facets and per-row stage/kind/source/counter chips. Hands in app/ and
+// facets and per-row stage/kind/source/counter chips. Round 5 (2026-11-20)
+// added: a 55-guide citation matrix with per-source counts and OPEN/1-SRC
+// flags, earned-by-grade restored + live PSN points (current scale) and
+// saved-state proof, the missables table collapsed to one grouped UNKNOWN
+// block plus two WATCH rows, the audit strip kept on the roadmap frame
+// only, de-pilled rows with labelled counters, and varied hidden-trophy
+// placeholders. Hands in app/ and
 // screenshots/ with the vendored make.fun dossier builder, unchanged.
 // A working gta6-trophy-guide-01 entry (Node 22, standard library only): the guide is this directory's app/ folder,
 // plain static files a browser opens at app/index.html (ES modules, CSS, no build step), offline: it loads nothing

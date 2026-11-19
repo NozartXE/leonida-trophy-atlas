@@ -15,19 +15,33 @@ export const ROADMAP_FACTS = {
   difficulty: 'Difficulty 4/10',
   playthroughs: '1 playthrough',
   saves: 'Manual saves at every chapter start',
-  replay: 'No mission replay — a missed Chapter 1 spot cannot be replayed',
-  cheats: 'Cheats disable trophies — keep them off for the whole run',
-  note: 'Totals from the cited roadmap guides (PowerPyx, GTABase), read 19 Nov 2026. Per-stage hours are estimates consistent with that total.',
+  replay: 'No mission replay',
+  cheats: 'Cheats disable trophies',
+  note: 'Totals from the cited roadmap guides (PowerPyx, GTABase), read 19 Nov 2026. Order: story, strands, collectibles, robberies, final grind.',
 };
 
+// PSN trophy points on the current PS5 scale (Oct 2020 onward): Bronze 15,
+// Silver 30, Gold 90, Platinum 300 — PSN100 methodology via PlayStation
+// Universe, corroborated by the live #50 entry's 195/1,350. The old
+// pre-2020 scale valued the platinum at 180 (total 1,230); it no longer
+// applies. Total for this list: 46x15 + 6x30 + 2x90 + 1x300 = 1,350.
+export const PSN_POINTS = { bronze: 15, silver: 30, gold: 90, platinum: 300 };
+
+export function psnPoints(trophies, earnedIds) {
+  const earned = trophies.filter((trophy) => earnedIds.has(trophy.id));
+  const total = trophies.reduce((sum, trophy) => sum + PSN_POINTS[trophy.grade], 0);
+  const points = earned.reduce((sum, trophy) => sum + PSN_POINTS[trophy.grade], 0);
+  return { points, total };
+}
+
 export const ROADMAP_STAGES = [
-  { stage: 1, title: 'Stage 1 — Story first', hours: '35–45h', blurb: 'Chapters 1–4, the finale and the required mission trophies — plus Positive Mental Attitude, which must be started at home in Chapter 1 before that chapter ends.' },
-  { stage: 2, title: 'Stage 2 — Strangers & side strands', hours: '15–20h', blurb: 'The stranger strands (Andy, Kenton, Billy, Randy, Tyrone, Bret) and the silver for finishing eight of them. Strands stay open after the story, so nothing here can be lost.' },
-  { stage: 3, title: 'Stage 3 — Story moments & the background tally', hours: '10–15h', blurb: 'The cryptic story-moment trophies, most with methods not yet confirmed, and Actions Speak Louder — a 500-action background tally that grows while you play everything else.' },
-  { stage: 4, title: 'Stage 4 — Collectibles & exploration', hours: '30–40h', blurb: 'Card sets, the 100 WAiNK locations, 100 discovered vehicles, the full map and every garage — the sweep of Leonida, best done region by region.' },
-  { stage: 5, title: 'Stage 5 — Ranges, races & one-off activities', hours: '35–50h', blurb: 'Shooting-range golds, races, challenges and the one-off activity trophies (bowling, the arcade, the tank encounter, the airport departure).' },
-  { stage: 6, title: 'Stage 6 — Robberies, heat & money', hours: '25–35h', blurb: 'Bank vaults, shop chains, the armored truck, gang operations — and the two money tallies, $250,000 laundered and $100,000 spent.' },
-  { stage: 7, title: 'Stage 7 — The final grind & the platinum', hours: '20–30h', blurb: 'The 250-stunt tally finishes last, A Long Road lands at 100% completion, and Vice Got a Price! pops on top of the other 54.' },
+  { stage: 1, title: 'Stage 1 — Story first', hours: '35–45h', blurb: 'Chapters 1–4, the finale and mission trophies.' },
+  { stage: 2, title: 'Stage 2 — Strangers & side strands', hours: '15–20h', blurb: 'Stranger strands and the silver for eight of them. One race is watch-listed — see Missables.' },
+  { stage: 3, title: 'Stage 3 — Story moments & the background tally', hours: '10–15h', blurb: 'Story moments and the 500-action background tally.' },
+  { stage: 4, title: 'Stage 4 — Collectibles & exploration', hours: '30–40h', blurb: 'Card sets, WAiNK spots, vehicles and garages.' },
+  { stage: 5, title: 'Stage 5 — Ranges, races & one-off activities', hours: '35–50h', blurb: 'Range golds, races, challenges and one-off activities.' },
+  { stage: 6, title: 'Stage 6 — Robberies, heat & money', hours: '25–35h', blurb: 'Vaults, shops and gang ops, plus the money tallies.' },
+  { stage: 7, title: 'Stage 7 — The final grind & the platinum', hours: '20–30h', blurb: 'The 250-stunt tally ends last; A Long Road hits 100%.' },
 ];
 
 export function trophiesInStage(trophies, stageNumber) {
