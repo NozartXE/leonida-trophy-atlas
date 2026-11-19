@@ -42,10 +42,12 @@ export function applyTrophyFilters(trophies, options) {
   const query = (options.query ?? '').trim().toLowerCase();
   const shown = trophies.filter((trophy) => {
     if (options.kind === 'missable' && !trophy.missable && !isMethodUnknown(trophy)) return false;
-    // Watch and Disagree are the guides that record a disagreement with
-    // live entries (the `dispute` field in the data): Strangers & Freaks
-    // and A Long Road. Unconfirmed is the 7 method-unknown trophies.
-    if (options.kind === 'watch' && !trophy.dispute) return false;
+    // Watch is the two time-sensitive rows (the `watch` field in the
+    // data): Strangers & Freaks and A Long Road. Disagree is every guide
+    // that records a disagreement (the `dispute` field) — those two
+    // plus Positive Mental Attitude's meditation count. Unconfirmed is
+    // the 7 method-unknown trophies.
+    if (options.kind === 'watch' && !trophy.watch) return false;
     if (options.kind === 'unconfirmed' && !isMethodUnknown(trophy)) return false;
     if (options.kind === 'disagree' && !trophy.dispute) return false;
     if (options.kind === 'online') return false; // no online trophies exist
@@ -74,9 +76,9 @@ export function filterHintFor(kind, grade, query, shownCount, totalCount) {
   }
   const parts = [`Showing ${shownCount} of ${totalCount} trophies`];
   if (kind === 'missable') parts.push('1 flagged possibly missable + 7 method unknown · 2 watch (Strangers & Freaks, A Long Road) in the missables view');
-  else if (kind === 'watch') parts.push('2 on watch — Strangers & Freaks, A Long Road — both versions in their guides');
+  else if (kind === 'watch') parts.push(`${shownCount} on watch — Strangers & Freaks, A Long Road — both versions in their guides`);
   else if (kind === 'unconfirmed') parts.push('7 trophies whose method is not yet known');
-  else if (kind === 'disagree') parts.push('2 guides record a disagreement — both versions shown in their guides');
+  else if (kind === 'disagree') parts.push(`${shownCount} guides record a disagreement — both versions shown in their guides`);
   else if (kind && kind !== 'all') parts.push(`kind: ${kind}`);
   if (grade && grade !== 'all') parts.push(`grade: ${grade}`);
   if (query) parts.push(`matching “${query}”`);

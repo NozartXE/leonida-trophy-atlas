@@ -110,11 +110,11 @@ body.guide-open .progress-card { padding: 5px 12px; }
    banner returns to full size. */
 body.guide-open .missable-banner { font-size: 12.5px; padding: 5px 10px; margin-bottom: 8px; }
 body.guide-open .missable-banner span { display: none; }
-body.guide-open .view-nav { margin-bottom: 6px; }
+body.guide-open .view-nav { margin-bottom: 4px; }
 body.guide-open .view-nav a { padding: 4px 10px; }
 body.guide-open .masthead, body.view-roadmap .masthead, body.view-missables .masthead { padding: 6px 0 3px; }
-body.guide-open .toolbar { padding: 5px 8px; margin-bottom: 6px; }
-body.guide-open .guide-panel { padding: 8px 10px; }
+body.guide-open .toolbar { padding: 5px 8px; margin-bottom: 4px; }
+body.guide-open .guide-panel { padding: 6px 10px; }
 /* Compact progress card in the focused states (guide open, roadmap and
    missables views) so the content below owns the frame. */
 body.guide-open .progress-big, body.view-roadmap .progress-big, body.view-missables .progress-big { font-size: 19px; }
@@ -147,11 +147,12 @@ body.view-missables .kicker { display: none; }
 /* Two-column layout */
 .layout { display: grid; grid-template-columns: 1fr 470px; gap: 12px; align-items: start; }
 .checklist, .guide-panel { background: var(--ink-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
-/* Fold alignment (measured, demo state): the 7th checklist row starts at
-   799px, so its top sits 1px above the fold. 1px here puts the row
-   boundary on the 800px fold, so no checklist row is ever cut mid-row;
-   the guide panel is a separate grid column and does not move. */
-.checklist { margin-top: 1px; }
+/* Fold alignment (measured, demo state): this margin puts a checklist
+   row boundary exactly on the 800px fold, so no checklist row is ever
+   cut mid-row; the guide panel is a separate grid column and does not
+   move. R7 re-measured it at 5px after the guide-open header trims
+   (view-nav + toolbar margins) lifted the layout by 4px. */
+.checklist { margin-top: 5px; }
 .list-hint { margin: 0 0 8px; font-size: 12.5px; color: var(--cream-dim); }
 .list-controls { display: flex; gap: 8px; margin: 0 0 6px; align-items: center; }
 .list-controls .kind-filters { margin-left: auto; }
@@ -197,29 +198,29 @@ body.view-missables .kicker { display: none; }
   background: var(--ink-3); border: 1px solid var(--line); border-radius: 6px;
   padding: 2px 8px; font-size: 11.5px; white-space: nowrap;
 }
-.guide-panel h2 { font-size: 17px; color: var(--cream); margin: 2px 0 2px; }
+.guide-panel h2 { font-size: 17px; color: var(--cream); margin: 0 0 2px; }
 .guide-panel .g-official {
   border: 1px solid var(--amber); border-left: 4px solid var(--amber); border-radius: 6px;
-  padding: 4px 8px; margin: 0 0 5px; font-size: 12px; background: var(--ink-3);
+  padding: 3px 8px; margin: 0 0 3px; font-size: 12px; background: var(--ink-3);
 }
 .g-official-label { font-size: 10.5px; letter-spacing: 1.4px; color: var(--amber); font-weight: 700; text-transform: uppercase; margin-right: 4px; }
 .g-official-text { color: var(--cream-dim); font-style: italic; }
 .g-foot { color: var(--amber-soft); font-size: 10px; font-weight: 700; }
 .guide-panel .g-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
-.guide-panel h3 { font-size: 12px; letter-spacing: 1.4px; color: var(--amber-soft); margin: 5px 0 2px; text-transform: uppercase; }
-.guide-panel p { font-size: 11.5px; line-height: 1.3; margin: 0 0 3px; }
+.guide-panel h3 { font-size: 12px; letter-spacing: 1.4px; color: var(--amber-soft); margin: 3px 0 1px; text-transform: uppercase; }
+.guide-panel p { font-size: 11.5px; line-height: 1.23; margin: 0 0 2px; }
 .guide-panel .g-step strong { color: var(--amber-soft); }
 .guide-panel .g-closed { font-size: 13.5px; color: var(--cream-dim); }
-.guide-panel .g-sources-list { margin: 0 0 3px; padding-left: 0; list-style: none; font-size: 10.5px; line-height: 1.2; color: var(--cream-dim); }
+.guide-panel .g-sources-list { margin: 0 0 2px; padding-left: 0; list-style: none; font-size: 10.5px; line-height: 1.2; color: var(--cream-dim); }
 /* Grouped full-list corroborators (KeenGamer, OutputLag, eGamers) — one
    line under the numbered list, not three more list items. */
-.g-sources-also { font-size: 10.5px; line-height: 1.2; color: var(--cream-dim); margin: 0 0 4px; }
+.g-sources-also { font-size: 10.5px; line-height: 1.2; color: var(--cream-dim); margin: 0 0 2px; }
 .g-sources-also b { color: var(--cream); }
 .g-src-n { color: var(--amber-soft); font-weight: 800; }
-.guide-panel .g-sources-list li { margin-bottom: 1px; }
+.guide-panel .g-sources-list li { margin-bottom: 0; }
 .guide-panel .g-sources-list b { color: var(--cream); }
 .guide-panel .g-warn {
-  background: #3a1d12; border: 1px solid #a34a2a; border-radius: 6px; padding: 5px 8px; font-size: 11.5px; margin: 0 0 5px;
+  background: #3a1d12; border: 1px solid #a34a2a; border-radius: 6px; padding: 4px 8px; font-size: 11.5px; margin: 0 0 3px;
 }
 .guide-panel .g-earn { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
 .guide-panel .g-earn span { font-size: 12.5px; color: var(--cream-dim); }
@@ -228,7 +229,7 @@ body.view-missables .kicker { display: none; }
 .g-counter {
   display: flex; gap: 9px; align-items: center;
   background: var(--ink-3); border: 1px solid var(--line); border-left: 4px solid var(--amber);
-  border-radius: 8px; padding: 4px 10px; margin: 5px 0 2px;
+  border-radius: 8px; padding: 2px 10px; margin: 3px 0 1px;
 }
 .g-counter-label { font-size: 11px; letter-spacing: 1.4px; color: var(--amber); font-weight: 700; text-transform: uppercase; }
 .g-counter-value { font-size: 16px; font-weight: 800; color: var(--cream); }
@@ -279,6 +280,11 @@ body.view-missables .kicker { display: none; }
 .cov .cov-read { margin-left: auto; color: var(--amber-soft); white-space: nowrap; }
 .coverage-dispute { margin: 6px 0 0; font-size: 12px; color: var(--cream); background: #2c2410; border: 1px solid var(--amber); border-radius: 6px; padding: 5px 8px; line-height: 1.35; }
 .coverage-dispute b { color: var(--amber); }
+/* Page-prose citations (PlanetGTA6 on the missables page): one line per
+   source, same shape as a coverage row, computed from pageCitations. */
+.coverage-page { display: flex; gap: 8px; align-items: baseline; font-size: 12px; padding: 3px 0; margin: 2px 0 0; border-bottom: 1px solid #1d3a44; color: var(--cream-dim); }
+.coverage-page b { color: var(--cream); min-width: 82px; }
+.coverage-page .cov-read { margin-left: auto; color: var(--amber-soft); white-space: nowrap; }
 .saved-state { margin: 8px 0 0; font-size: 11.5px; color: var(--cream-dim); border-top: 1px solid var(--line); padding-top: 6px; }
 .saved-state code { color: var(--amber-soft); font-size: 10.5px; }
 
@@ -322,7 +328,7 @@ body.view-missables .kicker { display: none; }
 /* Roadmap-only view: hide the tracker grid, banner, strip and toolbar (the
    cards carry the content), show all seven stage cards in two rows */
 body.view-roadmap .layout, body.view-roadmap .missable-banner, body.view-roadmap .roadmap-strip, body.view-roadmap .toolbar { display: none; }
-body.view-roadmap .roadmap-full { margin-top: 8px; padding: 5px 12px; }
+body.view-roadmap .roadmap-full { margin-top: 8px; padding: 3px 12px; }
 body.view-roadmap .view-nav { margin-bottom: 4px; }
 /* In the roadmap view the section title is redundant (the nav already
    says Roadmap) — hidden here only, to fund the coverage strip and the
@@ -334,27 +340,28 @@ body.view-roadmap .masthead { padding: 6px 0 3px; }
 body.view-roadmap .progress-card { padding: 4px 12px; }
 body.view-roadmap .progress-big { font-size: 18px; }
 body.view-roadmap .roadmap-full h2 { margin-bottom: 4px; }
-body.view-roadmap .roadmap-facts { margin-bottom: 6px; gap: 5px; }
+body.view-roadmap .roadmap-facts { margin-bottom: 4px; gap: 5px; }
 body.view-roadmap .roadmap-facts-note { font-size: 11.5px; }
-body.view-roadmap .next-up { margin-bottom: 5px; padding: 3px 10px; font-size: 12px; }
+body.view-roadmap .next-up { margin-bottom: 3px; padding: 3px 10px; font-size: 12px; }
 body.view-roadmap .missable-banner { display: none; }
-body.view-roadmap .stage-cards { grid-template-columns: repeat(4, 1fr); gap: 5px; }
-body.view-roadmap .stage-card { padding: 4px 6px; }
+body.view-roadmap .stage-cards { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+body.view-roadmap .stage-card { padding: 3px 6px; }
 /* Blurbs hide in the roadmap view only — the name chips below them carry
    the stage's content, and the frame needs the room. */
 body.view-roadmap .stage-card .stage-blurb { display: none; }
-body.view-roadmap .stage-names { line-height: 1.35; margin-top: 3px; }
+body.view-roadmap .stage-names { line-height: 1.27; margin-top: 3px; }
 body.view-roadmap .s-chip { font-size: 10.5px; padding: 0 6px; }
 body.view-roadmap .stage-card h3 { font-size: 12px; white-space: nowrap; }
 body.view-roadmap .stage-card .stage-count { font-size: 11px; margin-bottom: 2px; }
 body.view-roadmap .stage-card .stage-blurb { font-size: 10.5px; line-height: 1.15; }
 body.view-roadmap .stage-card .stage-counters { font-size: 10.5px; line-height: 1.2; }
 body.view-roadmap .roadmap-facts .fact { font-size: 12px; padding: 1px 9px; }
-body.view-roadmap .coverage-strip { margin-top: 4px; padding-top: 3px; }
+body.view-roadmap .coverage-strip { margin-top: 2px; padding-top: 2px; }
 body.view-roadmap .coverage-strip h3 { font-size: 12.5px; margin-bottom: 2px; }
-body.view-roadmap .cov { font-size: 11.5px; padding: 1px 0; }
+body.view-roadmap .cov { font-size: 11.5px; padding: 0; }
 body.view-roadmap .coverage-dispute { font-size: 11.5px; margin-top: 3px; padding: 4px 8px; }
-body.view-roadmap .saved-state { font-size: 11px; margin-top: 6px; padding-top: 5px; }
+body.view-roadmap .coverage-page { font-size: 11.5px; padding: 0; margin-top: 0; }
+body.view-roadmap .saved-state { font-size: 11px; margin-top: 4px; padding-top: 3px; }
 
 /* Missables-only view: the argument gets the whole frame */
 body.view-missables .layout, body.view-missables .missable-banner, body.view-missables .roadmap-strip,
@@ -365,10 +372,10 @@ body.view-missables .missables-lede { font-size: 12.5px; line-height: 1.35; marg
 body.view-missables .missable-case { padding: 4px 10px; margin-bottom: 4px; }
 body.view-missables .missable-case:last-child { margin-bottom: 0; }
 body.view-missables .missable-case h3 { font-size: 14px; margin-bottom: 3px; }
-body.view-missables .missable-case p { font-size: 12px; line-height: 1.35; margin-bottom: 3px; }
+body.view-missables .missable-case p { font-size: 12px; line-height: 1.35; margin-bottom: 2px; }
 body.view-missables .miss-table { font-size: 11.5px; margin-bottom: 4px; }
 body.view-missables .cleared-box { font-size: 12px; padding: 4px 10px; margin-bottom: 4px; }
-body.view-missables .miss-table th, body.view-missables .miss-table td { padding: 2px 6px; }
+body.view-missables .miss-table th, body.view-missables .miss-table td { padding: 1px 6px; }
 body.view-missables .miss-table .miss-chip { font-size: 10.5px; padding: 1px 6px; }
 body.view-missables .missable-case ul { font-size: 12px; line-height: 1.35; }
 body.view-missables .missable-case li { margin-bottom: 1px; }

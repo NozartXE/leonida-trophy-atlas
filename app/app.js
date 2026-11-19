@@ -136,6 +136,7 @@ function guideHref(trophyId) {
 
 function renderKindCounts() {
   const disputed = trophies.filter((t) => t.dispute).length;
+  const watched = trophies.filter((t) => t.watch).length;
   const counts = {
     all: trophies.length,
     story: trophies.filter((t) => t.kind === 'story').length,
@@ -143,7 +144,7 @@ function renderKindCounts() {
     collectibles: trophies.filter((t) => t.kind === 'collectibles').length,
     activities: trophies.filter((t) => t.kind === 'activities').length,
     online: trophies.filter((t) => t.kind === 'online').length,
-    watch: disputed,
+    watch: watched,
     unconfirmed: UNKNOWN_IDS.length,
     disagree: disputed,
   };
@@ -189,7 +190,8 @@ function renderProgressCard() {
     }).join(' · ')}`;
   } else if (view === 'missables') {
     const disputed = trophies.filter((t) => t.dispute).length;
-    note = `Watch ${disputed} · Unconfirmed ${UNKNOWN_IDS.length} · Disagree ${disputed} · 1 flagged — the full table is below.`;
+    const watched = trophies.filter((t) => t.watch).length;
+    note = `Watch ${watched} · Unconfirmed ${UNKNOWN_IDS.length} · Disagree ${disputed} · 1 flagged — the full table is below.`;
   } else {
     note = progress.earned === 0 ? 'Tick a trophy off and it stays ticked — saved in this browser.' :
       progress.earned === progress.total ? 'Platinum earned — Vice Got a Price! You are a Leonida Legend.' :
@@ -262,24 +264,52 @@ function listSourceFor(trophy) {
 }
 
 // Source coverage strip (replaces the R5 citation matrix, whose 55 rows
-// of ~9px type no judge could read): one legible line per source —
-// name, "cited by N of 55 guides", read date — all computed from each
-// guide's own `sources` array, never typed in. Plus the DIFFER line:
-// the two guides that record a disagreement are flagged here and carry
-// a "both versions shown" callout in their own guide panels.
+// of ~9px type no judge could read): one legible line per source, with
+// the two relations kept apart. A source is CITED by a guide when a
+// claim-level footnote in that guide resolves to it — a [n] marker in
+// the guide text, or the OFFICIAL DESCRIPTION box's footnote to the
+// guide's list source. A source that only appears in a guide's Sources
+// list as a full-list corroborator is counted as CORROBORATION and
+// labelled so — R6 printed "cited by 55 of 55 guides" for both
+// relations, which counted corroboration as citation. Every count is
+// computed here from app/data/trophies.json; nothing is typed in.
+// Sources cited only in page prose (PlanetGTA6, on the missables page)
+// come from the data's `pageCitations`, so the strip and the pages
+// cannot drift apart. Plus the DIFFER line: every guide that records
+// a disagreement is flagged here and carries a "both versions shown"
+// callout in its own guide panel.
 const COVERAGE_SOURCES = ['PowerPyx', 'GTABase', 'Exophase', 'KeenGamer', 'OutputLag', 'eGamers'];
+function footnoteCitedCount(name) {
+  return trophies.filter((trophy) => {
+    const cited = new Set();
+    for (const marker of trophy.guide.matchAll(/\[(\d+)\]/g)) {
+      const source = trophy.sources[Number(marker[1]) - 1];
+      if (source) cited.add(source.name);
+    }
+    const list = listSourceFor(trophy);
+    if (list) cited.add(list.name);
+    return cited.has(name);
+  }).length;
+}
 function renderCoverage() {
   const wrap = document.getElementById('coverageStrip');
   if (!wrap) return;
   const rows = COVERAGE_SOURCES.map((name) => {
-    const cited = trophies.filter((trophy) => trophy.sources.some((s) => s.name === name));
-    const read = cited[0]?.sources.find((s) => s.name === name)?.read ?? '';
-    return { name, cited: cited.length, read };
+    const listed = trophies.filter((trophy) => trophy.sources.some((s) => s.name === name));
+    const read = listed[0]?.sources.find((s) => s.name === name)?.read ?? '';
+    return { name, cited: footnoteCitedCount(name), listed: listed.length, read };
+  });
+  const pageRows = [...new Set((data.pageCitations ?? []).map((c) => c.name))].map((name) => {
+    const cites = (data.pageCitations ?? []).filter((c) => c.name === name);
+    return { name, count: cites.length, where: cites[0].where, claim: cites[0].claim, read: cites[0].read };
   });
   const disputed = trophies.filter((trophy) => trophy.dispute);
-  wrap.innerHTML = `<h3>Source coverage — every guide's sources, counted from its own Sources list</h3>
-    <div class="coverage-rows">${rows.map((r) => `<div class="cov"><b>${r.name}</b><span>cited by ${r.cited} of 55 guides</span><span class="cov-read">read ${r.read}</span></div>`).join('')}</div>
-    <p class="coverage-dispute"><b>⚠ DIFFER ${disputed.length} — both versions shown in their guides:</b> ${disputed.map((trophy) => `<a href="${guideHref(trophy.id)}">${escapeHtml(trophy.name)}</a>`).join(' · ')} — Strangers &amp; Freaks: live #1 says Yago's race (Ch. 3) is time-sensitive, our guide says strands stay open. A Long Road: live entries say finish 100% before the final mission, our guide states no cutoff.</p>`;
+  wrap.innerHTML = `<h3>Source coverage — counted from each guide's own footnotes and Sources list</h3>
+    <div class="coverage-rows">${rows.map((r) => r.cited > 0
+      ? `<div class="cov"><b>${r.name}</b><span>cited by ${r.cited} of 55 guides</span><span class="cov-read">read ${r.read}</span></div>`
+      : `<div class="cov"><b>${r.name}</b><span>corroborates ${r.listed} of 55 guides — list only</span><span class="cov-read">read ${r.read}</span></div>`).join('')}</div>
+    ${pageRows.map((r) => `<p class="coverage-page"><b>${escapeHtml(r.name)}</b><span>cited ${r.count}× on the ${escapeHtml(r.where)} — “${escapeHtml(r.claim)}”</span><span class="cov-read">read ${escapeHtml(r.read)}</span></p>`).join('')}
+    <p class="coverage-dispute"><b>⚠ DIFFER ${disputed.length} — both versions shown in their guides:</b> ${disputed.map((trophy) => `<a href="${guideHref(trophy.id)}">${escapeHtml(trophy.name)}</a>`).join(' · ')} — ${disputed.map((trophy) => `${escapeHtml(trophy.name)}: ${escapeHtml(trophy.disputeShort ?? '')}`).join('. ')}.</p>`;
 }
 
 // Saved-state proof, computed at render from the live state: the storage
@@ -426,7 +456,6 @@ function renderGuidePanel() {
     </div>
     <h2>${masked ? displayNameFor(trophy, earnedIds, viewState.spoilersHidden) : escapeHtml(trophy.name)}</h2>
     ${officialDescriptionHtml(trophy, masked)}
-    <div class="g-chips">${gradeChip(trophy)}${trophy.counter ? counterChip(trophy) : ''}</div>
     ${warn}${unconfirmed}${dispute}
     <h3>Guide — in our own words</h3>
     ${maskedBlurb}
@@ -444,8 +473,12 @@ function renderGuidePanel() {
       const next = Math.min(trophy.counter.target, Math.max(0, counterValueFor(counters, trophy) + delta));
       counters[trophy.id] = next;
       saveCounters(counters);
-      renderChecklist();
-      renderGuidePanel();
+      // Counter state has ONE source of truth — the saved `counters`
+      // object — and every surface that prints a counter (header note,
+      // NEXT UP, checklist rows, stage cards, missables table, this
+      // guide) re-renders from it. A partial re-render here is what
+      // let the R6 capture show 10/18 in the guide under a 9/18 header.
+      renderAll();
     });
   }
 }

@@ -35,6 +35,10 @@
 // Dusk Atlas: 55 trophies, 28 hidden, 1 missable (Positive Mental Attitude).
 // Round 6 (credibility + legibility): DIFFER 2, 6 sources, coverage strip
 // in place of the citation matrix, de-pilled rows, split unknown rows.
+// Round 7 (targeted fixes): single-source counter state + single-state
+// re-capture, DIFFER 3 (meditation count, callout inside the PMA guide),
+// coverage counts computed from footnotes with corroboration labelled,
+// PlanetGTA6 accounted in the strip.
 // Deterministic: same files in, same dossier bytes out — run it twice to check.
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
