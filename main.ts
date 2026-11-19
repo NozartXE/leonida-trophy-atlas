@@ -1,5 +1,9 @@
-// Leonida Trophy Atlas — Dusk Atlas build (2026-11-19): hands in app/ and
-// screenshots/ with the vendored make.fun dossier builder, unchanged.
+// Leonida Trophy Atlas — Dusk Atlas build (2026-11-19), feature/content
+// round added the same day: complete guides rendered in frame (no
+// truncation), live per-trophy counters, counted filter pills, a 7-stage
+// roadmap with cited planning totals, a dedicated missables view, and
+// structured dated Sources lists. Hands in app/ and screenshots/ with
+// the vendored make.fun dossier builder, unchanged.
 // A working gta6-trophy-guide-01 entry (Node 22, standard library only): the guide is this directory's app/ folder,
 // plain static files a browser opens at app/index.html (ES modules, CSS, no build step), offline: it loads nothing
 // over the network, and its trophy list and guides are app/data/trophies.json. The program hands it in: it copies app/
