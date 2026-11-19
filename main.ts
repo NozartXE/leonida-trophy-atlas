@@ -1,3 +1,5 @@
+// Leonida Trophy Atlas — Dusk Atlas build (2026-11-19): hands in app/ and
+// screenshots/ with the vendored make.fun dossier builder, unchanged.
 // A working gta6-trophy-guide-01 entry (Node 22, standard library only): the guide is this directory's app/ folder,
 // plain static files a browser opens at app/index.html (ES modules, CSS, no build step), offline: it loads nothing
 // over the network, and its trophy list and guides are app/data/trophies.json. The program hands it in: it copies app/
@@ -14,6 +16,8 @@
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
+// Dusk Atlas: 55 trophies, 28 hidden, 1 missable (Positive Mental Attitude).
+// Deterministic: same files in, same dossier bytes out — run it twice to check.
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
