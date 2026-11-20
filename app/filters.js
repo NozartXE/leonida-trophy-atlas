@@ -2,17 +2,17 @@
 // masked (name + description) while spoilers are hidden and it is not
 // earned; earning it reveals it. There are no online trophies, so the
 // online filter honestly shows an empty list with an explanation.
-// The missable filter covers the 1 flagged trophy AND the 7 trophies whose
-// unlock method is not yet known: the old "Missable 1" pill hid the 7
+// The missable filter covers the 1 flagged trophy AND the 2 trophies whose
+// unlock method is not yet known: the old "Missable 1" pill hid the
 // unknowns from anyone who never opened the missables tab.
 export function isStorySpoiler(trophy, earnedIds, spoilersHidden) {
   return spoilersHidden && trophy.hidden && !earnedIds.has(trophy.id);
 }
 
 // A trophy whose guide states its exact trigger is not yet confirmed.
-// Wording varies across the seven guides, so the pattern covers each form
-// the guides actually use; it matches exactly the 7 unknown-method
-// trophies (ids 38, 44, 45, 47, 49, 50, 51) and no other guide.
+// Wording varies across the two guides, so the pattern covers each form
+// the guides actually use; it matches exactly the 2 unknown-method
+// trophies (ids 29, 49) and no other guide.
 export function isMethodUnknown(trophy) {
   return /not yet confirmed|not pinned|under investigation|No confirmed step-by-step/.test(trophy.guide);
 }
@@ -46,7 +46,7 @@ export function applyTrophyFilters(trophies, options) {
     // data): Strangers & Freaks and A Long Road. Disagree is every guide
     // that records a disagreement (the `dispute` field) — those two
     // plus Positive Mental Attitude's meditation count. Unconfirmed is
-    // the 7 method-unknown trophies.
+    // the 2 method-unknown trophies.
     if (options.kind === 'watch' && !trophy.watch) return false;
     if (options.kind === 'unconfirmed' && !isMethodUnknown(trophy)) return false;
     if (options.kind === 'disagree' && !trophy.dispute) return false;
@@ -75,9 +75,9 @@ export function filterHintFor(kind, grade, query, shownCount, totalCount) {
     return 'Online: 0 trophies — GTA 6 has no online trophies. Every trophy is single-player and offline (PowerPyx, GTABase).';
   }
   const parts = [`Showing ${shownCount} of ${totalCount} trophies`];
-  if (kind === 'missable') parts.push('1 flagged possibly missable + 7 method unknown · 2 watch (Strangers & Freaks, A Long Road) in the missables view');
+  if (kind === 'missable') parts.push(`1 flagged possibly missable + ${shownCount - 1} method unknown · 2 watch (Strangers & Freaks, A Long Road) in the missables view`);
   else if (kind === 'watch') parts.push(`${shownCount} on watch — Strangers & Freaks, A Long Road — both versions in their guides`);
-  else if (kind === 'unconfirmed') parts.push('7 trophies whose method is not yet known');
+  else if (kind === 'unconfirmed') parts.push(`${shownCount} ${shownCount === 1 ? 'trophy' : 'trophies'} whose method is not yet known`);
   else if (kind === 'disagree') parts.push(`${shownCount} guides record a disagreement — both versions shown in their guides`);
   else if (kind && kind !== 'all') parts.push(`kind: ${kind}`);
   if (grade && grade !== 'all') parts.push(`grade: ${grade}`);

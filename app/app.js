@@ -16,15 +16,116 @@ import {
   saveCounters, saveEarnedSet,
 } from './state.js';
 import { applyTrophyFilters, displayDescriptionFor, displayNameFor, filterHintFor, isMethodUnknown, isStorySpoiler } from './filters.js';
-import { PSN_POINTS, ROADMAP_FACTS, ROADMAP_STAGES, platinumProgress, psnPoints, stageProgress, timeToPlatinum, trophiesInStage } from './roadmap.js';
+import { PSN_POINTS, ROADMAP_FACTS, ROADMAP_STAGES, platinumProgress, psnPoints, roadmapFactsNote, stageProgress, timeToPlatinum, trophiesInStage } from './roadmap.js';
 
 const params = new URLSearchParams(location.search);
 const data = await (await fetch('data/trophies.json')).json();
 const trophies = data.trophies;
 const byId = new Map(trophies.map((trophy) => [trophy.id, trophy]));
-// The 7 trophies whose unlock method no guide has confirmed yet.
+// The 2 trophies whose unlock method no guide has confirmed yet
+// (Bad Luck, I Guess + Fair Game) — derived from the guide wording,
+// never a hardcoded list.
 const UNKNOWN_IDS = trophies.filter(isMethodUnknown).map((trophy) => trophy.id);
 const FLAGGED_ID = 28; // Positive Mental Attitude — the one flagged missable.
+
+// The four list sources: they publish the official 55-trophy list, so
+// the OFFICIAL DESCRIPTION box cites all four. A source's full URL lives
+// ONCE in data.sourcesTable and is looked up by name.
+const LIST_SOURCES = ['Exophase', 'KeenGamer', 'OutputLag', 'eGamers'];
+const sourcesTable = data.sourcesTable ?? [];
+function sourceUrl(name) {
+  const entry = sourcesTable.find((s) => s.name === name);
+  return entry?.url ?? null;
+}
+
+// ONE read-date string for the whole atlas, computed from the data:
+// the earliest and latest read date across every per-trophy source.
+// Every strip, note and footer that states a read date uses this one
+// string; no date is typed in.
+function readDateRange() {
+  const months = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+  const seen = new Map();
+  for (const trophy of trophies) {
+    for (const s of trophy.sources) {
+      const m = s.read.match(/^(\d+) (\w+) (\d+)$/);
+      if (m) seen.set(s.read, { day: Number(m[1]), mon: m[2], year: Number(m[3]), key: Number(m[3]) * 372 + months[m[2]] * 31 + Number(m[1]) });
+    }
+  }
+  const sorted = [...seen.values()].sort((a, b) => a.key - b.key);
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+  if (!first || !last) return '';
+  if (first.mon === last.mon && first.year === last.year) {
+    return first.day === last.day ? `${first.day} ${first.mon} ${first.year}` : `${first.day}–${last.day} ${first.mon} ${first.year}`;
+  }
+  return `${first.day} ${first.mon} ${first.year} – ${last.day} ${last.mon} ${last.year}`;
+}
+
+// Split one guide sentence into short steps at clause boundaries: a
+// sentence over 170 chars splits at the first ", so " (then ", and ")
+// leaving both halves >= 35 chars, recursing. Every fragment inherits
+// the sentence's footnote markers, so a split never creates an uncited
+// step. The gate recomputes the step count with the same rule.
+function splitLongSentence(core, markers, punct) {
+  const tailed = `${core}${markers ? ` ${markers}` : ''}${punct}`;
+  if (core.length <= 170) return [tailed];
+  let best = null;
+  for (const sep of [', so ', ', and ']) {
+    let i = core.indexOf(sep);
+    while (i !== -1) {
+      const a = core.slice(0, i);
+      const b = core.slice(i + sep.length);
+      if (a.length >= 35 && b.length >= 35) { best = { a, b }; break; }
+      i = core.indexOf(sep, i + 1);
+    }
+    if (best) break;
+  }
+  if (!best) return [tailed];
+  const bCap = best.b.charAt(0).toUpperCase() + best.b.slice(1);
+  return [...splitLongSentence(best.a, markers, '.'), ...splitLongSentence(bCap, markers, punct)];
+}
+
+// The complete guide body, split into short numbered steps: first at
+// its own lead-ins (What to do / Where and how / Missable), then each
+// segment into sentences, then long sentences at clause boundaries.
+// Nothing is shortened or summarised; footnote markers [n] are kept
+// from the data and inherited by every fragment of a split sentence.
+function guideSteps(body) {
+  const segments = body.split(/\s+(?=(?:What to do|Where and how|Missable):)/);
+  const steps = [];
+  for (const segment of segments) {
+    const colon = segment.indexOf(':');
+    const label = colon === -1 ? '' : segment.slice(0, colon + 1);
+    const rest = colon === -1 ? segment : segment.slice(colon + 1).trim();
+    const sentences = rest.split(/(?<=[.!?])\s+/).filter(Boolean);
+    let firstInSegment = true;
+    for (const sentence of sentences) {
+      const markers = (sentence.match(/\[\d+\]/g) ?? []).join('');
+      const punct = sentence.match(/([.!?])\s*$/)?.[1] ?? '.';
+      const core = sentence.replace(/\[\d+\]/g, '').replace(/[.!?]\s*$/, '').trim();
+      for (const fragment of splitLongSentence(core, markers, punct)) {
+        steps.push({ label: firstInSegment ? label : '', text: fragment });
+        firstInSegment = false;
+      }
+    }
+  }
+  return steps;
+}
+
+// Steps cited: every step carries at least one footnote marker —
+// sentences are all markered in the data and fragments inherit them.
+// Computed from the data with the same splitting rule the panel uses.
+function stepsCitedCount() {
+  let total = 0;
+  let cited = 0;
+  for (const trophy of trophies) {
+    for (const step of guideSteps(trophy.guide)) {
+      total++;
+      if (/\[\d+\]/.test(step.text)) cited++;
+    }
+  }
+  return { total, cited };
+}
 
 let earnedIds = loadEarnedSet();
 let counters = loadCounters();
@@ -151,10 +252,23 @@ function renderKindCounts() {
   const labels = { all: 'All', story: 'Story', collectibles: 'Collectibles', activities: 'Activities', online: 'Online', watch: 'Watch', unconfirmed: 'Unconfirmed', disagree: 'Disagree' };
   for (const button of document.querySelectorAll('button[data-kind]')) {
     const kind = button.dataset.kind;
-    if (kind === 'missable') button.textContent = 'Missable 1 · Unknown 7';
+    if (kind === 'missable') button.textContent = `Missable 1 · Unknown ${UNKNOWN_IDS.length}`;
     else button.textContent = `${labels[kind]} ${counts[kind]}`;
     button.classList.toggle('empty', kind === 'online');
   }
+}
+
+// The audit strip, on EVERY frame (it was roadmap-only in R7): one
+// line, every number computed from the data — nothing typed in.
+function renderAuditStrip() {
+  const strip = document.getElementById('auditStrip');
+  if (!strip) return;
+  const hidden = trophies.filter((t) => t.hidden).length;
+  const citing = trophies.filter((t) => t.sources.length > 0).length;
+  const steps = stepsCitedCount();
+  const disputed = trophies.filter((t) => t.dispute).length;
+  const watched = trophies.filter((t) => t.watch).length;
+  strip.innerHTML = `<span class="audit-label">AUDIT</span> ${hidden} hidden &middot; ${citing}/${trophies.length} guides cite a source &middot; ${steps.cited}/${steps.total} steps cited &middot; ${UNKNOWN_IDS.length} methods unknown &middot; ${watched} watch &middot; ${disputed} disagree &middot; read ${readDateRange()} <span class="audit-stages" id="auditStages"></span>`;
 }
 
 // Stage chips in the audit strip, synced to earned state: S1 3/13, ...
@@ -228,7 +342,22 @@ function renderRoadmapFacts() {
   const facts = document.getElementById('roadmapFacts');
   const items = [ROADMAP_FACTS.totalHours, ROADMAP_FACTS.difficulty, ROADMAP_FACTS.playthroughs, ROADMAP_FACTS.replay, ROADMAP_FACTS.saves, ROADMAP_FACTS.cheats];
   facts.innerHTML = items.map((item) => `<span class="fact">${item}</span>`).join('') +
-    `<p class="roadmap-facts-note">${ROADMAP_FACTS.note}</p>`;
+    `<p class="roadmap-facts-note">${roadmapFactsNote(readDateRange())}</p>`;
+}
+
+// Footer facts that must track the data: the read-date range and the
+// two still-unconfirmed trophies. The HTML carries the same values as
+// fallback text; JS overwrites them from the data at load.
+function renderFooterFacts() {
+  const dateEl = document.getElementById('footerReadDate');
+  if (dateEl) dateEl.textContent = readDateRange();
+  const unkEl = document.getElementById('footerUnknowns');
+  if (unkEl) {
+    const names = UNKNOWN_IDS.map((id) => byId.get(id).name);
+    unkEl.textContent = names.length > 1
+      ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`
+      : names[0] ?? '';
+  }
 }
 
 function renderRoadmapCards() {
@@ -258,9 +387,9 @@ function renderRoadmapCards() {
 
 // The list source that publishes a guide's official description — the
 // same rule the guide panel's OFFICIAL DESCRIPTION box uses for its
-// footnote. Every guide lists Exophase.
-function listSourceFor(trophy) {
-  return trophy.sources.find((s) => s.name === 'Exophase');
+// footnotes. Every guide lists all four list sources.
+function listSourcesFor(trophy) {
+  return LIST_SOURCES.map((name) => trophy.sources.find((s) => s.name === name)).filter(Boolean);
 }
 
 // Source coverage strip (replaces the R5 citation matrix, whose 55 rows
@@ -286,8 +415,10 @@ function footnoteCitedCount(name) {
       const source = trophy.sources[Number(marker[1]) - 1];
       if (source) cited.add(source.name);
     }
-    const list = listSourceFor(trophy);
-    if (list) cited.add(list.name);
+    // The OFFICIAL DESCRIPTION box cites every list source in the
+    // guide's Sources list (see officialDescriptionHtml) — the same
+    // rule the panel uses, shared here.
+    for (const list of listSourcesFor(trophy)) cited.add(list.name);
     return cited.has(name);
   }).length;
 }
@@ -304,12 +435,30 @@ function renderCoverage() {
     return { name, count: cites.length, where: cites[0].where, claim: cites[0].claim, read: cites[0].read };
   });
   const disputed = trophies.filter((trophy) => trophy.dispute);
-  wrap.innerHTML = `<h3>Source coverage — counted from each guide's own footnotes and Sources list</h3>
-    <div class="coverage-rows">${rows.map((r) => r.cited > 0
-      ? `<div class="cov"><b>${r.name}</b><span>cited by ${r.cited} of 55 guides</span><span class="cov-read">read ${r.read}</span></div>`
-      : `<div class="cov"><b>${r.name}</b><span>corroborates ${r.listed} of 55 guides — list only</span><span class="cov-read">read ${r.read}</span></div>`).join('')}</div>
-    ${pageRows.map((r) => `<p class="coverage-page"><b>${escapeHtml(r.name)}</b><span>cited ${r.count}× on the ${escapeHtml(r.where)} — “${escapeHtml(r.claim)}”</span><span class="cov-read">read ${escapeHtml(r.read)}</span></p>`).join('')}
-    <p class="coverage-dispute"><b>⚠ DIFFER ${disputed.length} — both versions shown in their guides:</b> ${disputed.map((trophy) => `<a href="${guideHref(trophy.id)}">${escapeHtml(trophy.name)}</a>`).join(' · ')} — ${disputed.map((trophy) => `${escapeHtml(trophy.name)}: ${escapeHtml(trophy.disputeShort ?? '')}`).join('. ')}.</p>`;
+  // One legible line per source (name, claim, read date) plus the full
+  // URL as a second line — the URL text lives in the shared sources
+  // table, so it is stored once and rendered from there. Exophase has
+  // no verified game-page URL: its line says so and points at the
+  // Push Square guide, which also publishes the 55-trophy list.
+  const pushSquareUrl = sourceUrl('Push Square');
+  wrap.innerHTML = `<h3>Source coverage — counted from each guide's own footnotes and Sources list · sources read ${readDateRange()}</h3>
+    <div class="coverage-rows">${rows.map((r) => {
+      const url = sourceUrl(r.name);
+      const claim = r.cited > 0
+        ? `cited by ${r.cited} of 55 guides`
+        : `corroborates ${r.listed} of 55 guides — list only`;
+      const urlLine = url
+        ? `<a class="cov-url" href="${escapeHtml(url)}">${escapeHtml(url)}</a>`
+        : (r.name === 'Exophase' && pushSquareUrl
+          ? `<span class="cov-url">No verified game-page URL — the list is also published by <a href="${escapeHtml(pushSquareUrl)}">Push Square</a>.</span>`
+          : '');
+      return `<div class="cov"><div class="cov-line"><b>${r.name}</b><span>${claim}</span><span class="cov-read">read ${r.read}</span></div>${urlLine}</div>`;
+    }).join('')}</div>
+    ${pageRows.map((r) => {
+      const url = sourceUrl(r.name);
+      return `<div class="coverage-page"><div class="cov-line"><b>${escapeHtml(r.name)}</b><span>cited ${r.count}× on the ${escapeHtml(r.where)} — “${escapeHtml(r.claim)}”</span><span class="cov-read">read ${escapeHtml(r.read)}</span></div>${url ? `<a class="cov-url" href="${escapeHtml(url)}">${escapeHtml(url)}</a>` : ''}</div>`;
+    }).join('')}
+    <p class="coverage-dispute"><b>⚠ DIFFER ${disputed.length} — both versions shown in their guides:</b> ${disputed.map((trophy) => `<a href="${guideHref(trophy.id)}">${escapeHtml(trophy.name)}</a>`).join(' · ')} — ${disputed.map((trophy) => `${escapeHtml(trophy.name)}: ${linkChecklistName(escapeHtml(trophy.disputeShort ?? ''))}`).join('. ')}.</p>`;
 }
 
 // Saved-state proof, computed at render from the live state: the storage
@@ -374,32 +523,42 @@ function renderChecklist() {
   }
 }
 
-// The complete guide body, split at its own lead-ins (What to do / Where
-// and how / Missable) into numbered steps. Nothing is shortened or
-// summarised; footnote markers [n] are kept from the data.
+// The complete guide body, split into short numbered steps (see
+// guideSteps): each step 1–2 lines, each with its own footnote(s).
+// The first step of each section carries its lead-in as a bold label.
 function guideStepHtml(body) {
-  const segments = body.split(/\s+(?=(?:What to do|Where and how|Missable):)/);
-  return segments.map((segment, i) => {
-    const colon = segment.indexOf(':');
-    if (colon === -1) return `<p class="g-step">${markFootnotes(segment)}</p>`;
-    return `<p class="g-step"><strong>Step ${i + 1} — ${escapeHtml(segment.slice(0, colon + 1))}</strong>${markFootnotes(segment.slice(colon + 1))}</p>`;
+  return guideSteps(body).map((step, i) => {
+    const head = step.label ? `<strong>Step ${i + 1} — ${escapeHtml(step.label)}</strong>` : `<strong>Step ${i + 1}</strong>`;
+    return `<p class="g-step">${head} ${markFootnotes(step.text)}</p>`;
   }).join('');
 }
 
 function sourcesListHtml(trophy) {
-  // Numbered list: the sources the guide's own footnote markers cite
-  // (method sources + Exophase, the list source for the official
-  // description). The three full-list corroborators are grouped in one
-  // line — they are cited by the Sources list, not by a body step.
+  // Each source's full URL is shown once, as a real anchor — the URL
+  // itself lives in the shared sources table, looked up by name.
+  // Exophase has no verified game-page URL: it stays domain-only here,
+  // and the coverage strip explains the fallback once. The three
+  // full-list corroborators are grouped in one line, with their names
+  // as links to the same table. Per-source read dates are NOT repeated
+  // here — they already sit beside each source in the coverage strip,
+  // and the audit strip carries the range; repeating them cost a
+  // wrapped line per item on the tightest panels.
   const listSources = ['KeenGamer', 'OutputLag', 'eGamers'];
   const numbered = trophy.sources.filter((s) => !listSources.includes(s.name));
   const grouped = trophy.sources.filter((s) => listSources.includes(s.name));
   const items = numbered.map((source) => {
     const i = trophy.sources.indexOf(source);
-    return `<li><span class="g-src-n">[${i + 1}]</span> <b>${escapeHtml(source.name)}</b> — ${escapeHtml(source.domain)} — ${escapeHtml(source.detail)} · read ${escapeHtml(source.read)}</li>`;
+    const url = sourceUrl(source.name);
+    const urlLine = url
+      ? `<a class="g-src-url" href="${escapeHtml(url)}">${escapeHtml(url)}</a>`
+      : '';
+    return `<li><span class="g-src-n">[${i + 1}]</span> <b>${escapeHtml(source.name)}</b> — ${escapeHtml(source.domain)} — ${escapeHtml(source.detail)}${urlLine}</li>`;
   }).join('');
   const also = grouped.length
-    ? `<p class="g-sources-also">Also corroborated by ${grouped.map((s) => escapeHtml(s.name)).join(', ')} — full 55-trophy lists, read ${escapeHtml(grouped[0].read)}.</p>`
+    ? `<p class="g-sources-also">Also corroborated by ${grouped.map((s) => {
+      const url = sourceUrl(s.name);
+      return url ? `<a href="${escapeHtml(url)}">${escapeHtml(s.name)}</a>` : escapeHtml(s.name);
+    }).join(', ')}.</p>`
     : '';
   return `<h3>Sources</h3><ol class="g-sources-list">${items}</ol>${also}`;
 }
@@ -412,16 +571,28 @@ function counterHtml(trophy) {
     <button type="button" class="counter-btn" data-counter-step="-1" aria-label="Count down">−</button>
     <span class="g-counter-value">${trophy.counter.label} ${formatCounterValue(trophy, value)} / ${formatCounterTarget(trophy)}</span>
     <button type="button" class="counter-btn" data-counter-step="1" aria-label="Count up">+</button>
-    <span class="g-counter-note">${reached ? 'Target reached — tick it earned in the checklist.' : 'Counted here, saved in this browser.'}</span>
+    <span class="g-counter-note">${reached ? 'Target reached — tick it earned.' : 'Saved in this browser.'}</span>
   </div>`;
 }
 
 // The official description, boxed and separate from the own-words guide,
-// with its own footnote to the list source that publishes it.
+// with its own footnotes to the list sources that publish it — all four
+// of them (Exophase, KeenGamer, OutputLag, eGamers), not Exophase alone.
 function officialDescriptionHtml(trophy, masked) {
-  const list = listSourceFor(trophy);
-  const n = list ? trophy.sources.indexOf(list) + 1 : 1;
-  return `<div class="g-official"><span class="g-official-label">Official description</span> <span class="g-official-text">“${masked ? 'Hidden until earned.' : escapeHtml(trophy.description)}”</span>${masked ? '' : ` <sup class="g-foot">[${n}]</sup>`}</div>`;
+  const markers = LIST_SOURCES.map((name) => trophy.sources.findIndex((s) => s.name === name))
+    .filter((i) => i !== -1)
+    .map((i) => `<sup class="g-foot">[${i + 1}]</sup>`).join('');
+  return `<div class="g-official"><span class="g-official-label">Official description</span> <span class="g-official-text">“${masked ? 'Hidden until earned.' : escapeHtml(trophy.description)}”</span>${masked ? '' : ` ${markers}`}</div>`;
+}
+
+// The dissenting "100% list" is named everywhere as PowerPyx's 100%
+// checklist (15 of 18 meditations), and the name links to PowerPyx's
+// meditation guide — the URL lives in the shared sources table.
+const CHECKLIST_NAME = "PowerPyx's 100% checklist (15 of 18 meditations)";
+function linkChecklistName(escapedText) {
+  const url = sourceUrl('PowerPyx — meditation guide');
+  if (!url) return escapedText;
+  return escapedText.split(CHECKLIST_NAME).join(`<a href="${escapeHtml(url)}">${CHECKLIST_NAME}</a>`);
 }
 
 function renderGuidePanel() {
@@ -435,12 +606,11 @@ function renderGuidePanel() {
   const masked = isStorySpoiler(trophy, earnedIds, viewState.spoilersHidden);
   const kindLabel = trophy.missable ? 'MISSABLE · ' : '';
   const warn = trophy.missable
-    ? `<p class="g-warn"><b>⚠ Missable:</b> the Chapter 1 home spot is gone after Chapter 1 — meditate there first; keep a chapter-start save. (PowerPyx, GTABase)</p>`
+    ? `<p class="g-warn"><b>⚠ Missable:</b> the Chapter 1 home spot is gone after Chapter 1 — meditate there first. (PowerPyx, GTABase)</p>`
     : '';
   const dispute = trophy.dispute
-    ? `<p class="g-warn g-dispute"><b>⚠ Sources disagree — both versions shown:</b> ${escapeHtml(trophy.dispute)}</p>`
+    ? `<p class="g-warn g-dispute"><b>⚠ Sources disagree — both versions shown:</b> ${linkChecklistName(escapeHtml(trophy.dispute))}</p>`
     : '';
-  const fullText = `${trophy.guide} ${trophy.sources.map((s) => s.detail).join(' ')}`;
   const unconfirmed = isMethodUnknown(trophy)
     ? `<p class="g-warn"><b>Not pinned down yet:</b> no guide has confirmed this trophy's exact trigger yet — the guide below says what the description supports and what is still unknown, rather than guessing.</p>`
     : '';
@@ -484,8 +654,8 @@ function renderGuidePanel() {
 }
 
 // Missables page as a structured tracker: the flagged trophy as a row
-// with its live counter and guide link, the 7 unknown-method trophies as
-// SEVEN rows — one verdict each, each with its own trigger hint from its
+// with its live counter and guide link, the 2 unknown-method trophies as
+// TWO rows — one verdict each, each with its own trigger hint from its
 // guide — and two WATCH rows where live entries disagree with our guides.
 // The disagreement is shown, not settled. A Cleared box below the table
 // names the rest as not missable (count computed, not typed in).
@@ -507,12 +677,13 @@ function renderMissablesTable() {
   const cleared = document.getElementById('clearedBox');
   if (cleared) {
     const clearedCount = trophies.length - 1 - UNKNOWN_IDS.length - 2;
-    cleared.innerHTML = `<b>✓ CLEARED — NOT MISSABLE: the other ${clearedCount} trophies.</b> Story beats pop from required missions; strands, collectibles and activities stay open after the story; the platinum waits on the other 54. (PowerPyx, GTABase)`;
+    cleared.innerHTML = `<b>✓ CLEARED — NOT MISSABLE: the other ${clearedCount} trophies.</b> Story beats pop from required missions; strands, collectibles and activities stay open after the story; the platinum waits on the other ${trophies.length - 1}. (PowerPyx, GTABase)`;
   }
 }
 
 function renderAll() {
   renderProgressCard();
+  renderAuditStrip();
   renderAuditStages();
   renderRoadmapStrip();
   renderNextUp();
@@ -521,6 +692,7 @@ function renderAll() {
   renderCoverage();
   renderSavedState();
   renderMissablesTable();
+  renderFooterFacts();
   renderChecklist();
   renderGuidePanel();
 }

@@ -39,6 +39,14 @@
 // re-capture, DIFFER 3 (meditation count, callout inside the PMA guide),
 // coverage counts computed from footnotes with corroboration labelled,
 // PlanetGTA6 accounted in the strip.
+// Round 8 (2026-11-20): full source URLs from one shared table (Exophase
+// domain-only, no verified game-page URL), one computed read-date range
+// (19–20 Nov 2026) everywhere, numbered steps split from guide sentences
+// with a "steps cited" claim, claim footnotes for KeenGamer/OutputLag/
+// eGamers, audit strip on all four frames, type +1–2px (Dusk kept),
+// Strangers & Freaks open in frame 4, PowerPyx's 100% checklist named,
+// unknown 7→2 (Bad Luck, I Guess + Fair Game) per PowerPyx's live guide,
+// watch list kept at 2 (hourglass finals are not trophy-relevant).
 // Deterministic: same files in, same dossier bytes out — run it twice to check.
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

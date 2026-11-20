@@ -17,8 +17,13 @@ export const ROADMAP_FACTS = {
   saves: 'Manual saves at every chapter start',
   replay: 'No mission replay',
   cheats: 'Cheats disable trophies',
-  note: 'Totals from the cited roadmap guides (PowerPyx, GTABase, KeenGamer, OutputLag), read 20 Nov 2026. Order: story, strands, collectibles, robberies, final grind.',
 };
+
+// The roadmap sourcing note, with the read date filled in from the
+// atlas's single computed read-date range (A-1) — never typed in.
+export function roadmapFactsNote(readRange) {
+  return `Totals from the cited roadmap guides, read ${readRange}. Order: story, strands, collectibles, robberies, final grind.`;
+}
 
 // Hours left to the platinum, computed from our own data: each stage's
 // hour range midpoint, scaled by the share of that stage still unearned.

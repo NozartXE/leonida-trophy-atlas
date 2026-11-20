@@ -48,14 +48,15 @@ button { cursor: pointer; }
 .progress-psn { margin: 2px 0 0; font-size: 11.5px; color: var(--amber-soft); }
 .progress-note { margin: 4px 0 0; font-size: 12px; color: var(--cream-dim); }
 
-/* The audit strip lives ONLY on the roadmap frame (R4 showed it on all
-   four frames; the panel called it microtext clutter). */
+/* The audit strip shows on ALL four frames (R7 gated it to the roadmap
+   frame only; the panel called that microtext clutter on one frame and
+   invisibility on the other three). One line, every number computed
+   from the data — see renderAuditStrip in app.js. */
 .audit-strip {
-  display: none;
+  display: block;
   background: var(--ink-3); border: 1px solid var(--amber); border-radius: 8px;
-  padding: 3px 10px; margin: 0 0 8px; font-size: 12px; color: var(--cream-dim);
+  padding: 2px 10px; margin: 0 0 8px; font-size: 12px; color: var(--cream-dim);
 }
-body.view-roadmap .audit-strip { display: block; }
 .audit-strip .audit-label { color: var(--amber); font-weight: 800; letter-spacing: 1.4px; margin-right: 6px; }
 .audit-stages { margin-left: 8px; white-space: nowrap; }
 .audit-stage { color: var(--amber-soft); font-weight: 700; margin-right: 8px; }
@@ -104,24 +105,35 @@ body.guide-open .roadmap-strip { display: none; }
 body.guide-open .masthead, body.view-roadmap .masthead, body.view-missables .masthead { padding: 10px 0 6px; }
 body.guide-open h1, body.view-roadmap h1, body.view-missables h1 { font-size: 20px; }
 body.guide-open .tagline, body.view-roadmap .tagline, body.view-missables .tagline { display: none; }
-body.guide-open .progress-card { padding: 5px 12px; }
+body.guide-open .progress-card { padding: 3px 12px; }
+/* The compact progress card is the masthead's height driver (the
+   title column stretches to it), so its rows tighten here: bar
+   thinner, rows at 1.2 line-height. This funds the audit strip on
+   the cover frames and the coverage URLs on the roadmap frame. */
+body.guide-open .progress-big, body.view-roadmap .progress-big, body.view-missables .progress-big { font-size: 18px; line-height: 1.2; }
+body.guide-open .progress-bar, body.view-roadmap .progress-bar, body.view-missables .progress-bar { margin: 2px 0; height: 6px; }
+body.guide-open .progress-grades, body.view-roadmap .progress-grades, body.view-missables .progress-grades { font-size: 12px; line-height: 1.2; }
+body.guide-open .progress-psn, body.view-roadmap .progress-psn, body.view-missables .progress-psn { font-size: 11px; line-height: 1.2; }
+body.guide-open .progress-note, body.view-roadmap .progress-note, body.view-missables .progress-note { font-size: 11.5px; margin-top: 2px; line-height: 1.2; }
 /* With a guide open, the banner compacts to a one-line alert — the open
    guide itself carries the full missable warning. Guide closed, the
    banner returns to full size. */
-body.guide-open .missable-banner { font-size: 12.5px; padding: 5px 10px; margin-bottom: 8px; }
+body.guide-open .missable-banner { font-size: 12.5px; padding: 3px 10px; margin-bottom: 4px; }
 body.guide-open .missable-banner span { display: none; }
-body.guide-open .view-nav { margin-bottom: 4px; }
-body.guide-open .view-nav a { padding: 4px 10px; }
-body.guide-open .masthead, body.view-roadmap .masthead, body.view-missables .masthead { padding: 6px 0 3px; }
-body.guide-open .toolbar { padding: 5px 8px; margin-bottom: 4px; }
-body.guide-open .guide-panel { padding: 6px 10px; }
+body.guide-open .view-nav { margin-bottom: 2px; }
+body.guide-open .view-nav a { padding: 3px 10px; }
+body.guide-open .masthead, body.view-roadmap .masthead, body.view-missables .masthead { padding: 4px 0 2px; }
+body.guide-open .toolbar { padding: 3px 8px; margin-bottom: 0; }
+body.guide-open .guide-panel { padding: 4px 10px; }
+/* With a guide open, the checklist rows start lower: that puts a row
+   boundary at the 800px fold (measured: the rows are 74.4px tall and
+   the boundary otherwise lands 16px above the fold, cutting a row).
+   The value is 24.5px, not 16.5px, because it collapses with the
+   list-hint's 8px bottom margin — the rows move by the difference.
+   The panel itself is untouched — this only shifts the list. */
+body.guide-open #trophyList { margin-top: 24.5px; }
 /* Compact progress card in the focused states (guide open, roadmap and
    missables views) so the content below owns the frame. */
-body.guide-open .progress-big, body.view-roadmap .progress-big, body.view-missables .progress-big { font-size: 19px; }
-body.guide-open .progress-bar, body.view-roadmap .progress-bar, body.view-missables .progress-bar { margin: 2px 0; }
-body.guide-open .progress-grades, body.view-roadmap .progress-grades, body.view-missables .progress-grades { font-size: 12px; }
-body.guide-open .progress-psn, body.view-roadmap .progress-psn, body.view-missables .progress-psn { font-size: 11px; }
-body.guide-open .progress-note, body.view-roadmap .progress-note, body.view-missables .progress-note { font-size: 11.5px; margin-top: 2px; }
 body.view-roadmap .progress-card, body.view-missables .progress-card { padding: 6px 12px; }
 body.view-missables .kicker { display: none; }
 
@@ -196,31 +208,41 @@ body.view-missables .kicker { display: none; }
 .guide-panel .g-kind { font-size: 11px; letter-spacing: 1.6px; color: var(--amber); font-weight: 700; margin: 0; }
 .guide-panel .g-close {
   background: var(--ink-3); border: 1px solid var(--line); border-radius: 6px;
-  padding: 2px 8px; font-size: 11.5px; white-space: nowrap;
+  padding: 1px 8px; font-size: 11.5px; white-space: nowrap;
 }
-.guide-panel h2 { font-size: 17px; color: var(--cream); margin: 0 0 2px; }
+.guide-panel h2 { font-size: 17px; color: var(--cream); margin: 0; }
 .guide-panel .g-official {
   border: 1px solid var(--amber); border-left: 4px solid var(--amber); border-radius: 6px;
-  padding: 3px 8px; margin: 0 0 3px; font-size: 12px; background: var(--ink-3);
+  padding: 2px 8px; margin: 0 0 2px; font-size: 12px; line-height: 1.25; background: var(--ink-3);
 }
-.g-official-label { font-size: 10.5px; letter-spacing: 1.4px; color: var(--amber); font-weight: 700; text-transform: uppercase; margin-right: 4px; }
+.g-official-label { font-size: 11.5px; letter-spacing: 0.5px; color: var(--amber); font-weight: 700; text-transform: uppercase; margin-right: 4px; }
 .g-official-text { color: var(--cream-dim); font-style: italic; }
-.g-foot { color: var(--amber-soft); font-size: 10px; font-weight: 700; }
+/* The official-description footnotes sit on the baseline, not raised:
+   as <sup> they inflated the line box and pushed the 4th marker onto
+   a line of its own on the tightest panels. */
+.g-official .g-foot { vertical-align: baseline; }
+.g-foot { color: var(--amber-soft); font-size: 11px; font-weight: 700; }
 .guide-panel .g-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
-.guide-panel h3 { font-size: 12px; letter-spacing: 1.4px; color: var(--amber-soft); margin: 3px 0 1px; text-transform: uppercase; }
-.guide-panel p { font-size: 11.5px; line-height: 1.23; margin: 0 0 2px; }
+.guide-panel h3 { font-size: 12px; letter-spacing: 1.4px; color: var(--amber-soft); margin: 1px 0 0; text-transform: uppercase; }
+.guide-panel p { font-size: 12.5px; line-height: 1.15; margin: 0; }
 .guide-panel .g-step strong { color: var(--amber-soft); }
 .guide-panel .g-closed { font-size: 13.5px; color: var(--cream-dim); }
-.guide-panel .g-sources-list { margin: 0 0 2px; padding-left: 0; list-style: none; font-size: 10.5px; line-height: 1.2; color: var(--cream-dim); }
+.guide-panel .g-sources-list { margin: 0; padding-left: 0; list-style: none; font-size: 11.5px; line-height: 1.15; color: var(--cream-dim); }
 /* Grouped full-list corroborators (KeenGamer, OutputLag, eGamers) — one
    line under the numbered list, not three more list items. */
-.g-sources-also { font-size: 10.5px; line-height: 1.2; color: var(--cream-dim); margin: 0 0 2px; }
+.g-sources-also { font-size: 11.5px; line-height: 1.2; color: var(--cream-dim); margin: 0 0 2px; }
+/* Full source URL under a Sources item: the URL text itself, as a real
+   anchor, in mono so it reads as an address, not prose. */
+.g-src-url {
+  display: block; font: 10px/1.25 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color: var(--amber-soft); overflow-wrap: anywhere; margin-top: 1px;
+}
 .g-sources-also b { color: var(--cream); }
 .g-src-n { color: var(--amber-soft); font-weight: 800; }
 .guide-panel .g-sources-list li { margin-bottom: 0; }
 .guide-panel .g-sources-list b { color: var(--cream); }
 .guide-panel .g-warn {
-  background: #3a1d12; border: 1px solid #a34a2a; border-radius: 6px; padding: 4px 8px; font-size: 11.5px; margin: 0 0 3px;
+  background: #3a1d12; border: 1px solid #a34a2a; border-radius: 6px; padding: 3px 8px; font-size: 11.5px; margin: 0 0 3px;
 }
 .guide-panel .g-earn { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
 .guide-panel .g-earn span { font-size: 12.5px; color: var(--cream-dim); }
@@ -229,7 +251,7 @@ body.view-missables .kicker { display: none; }
 .g-counter {
   display: flex; gap: 9px; align-items: center;
   background: var(--ink-3); border: 1px solid var(--line); border-left: 4px solid var(--amber);
-  border-radius: 8px; padding: 2px 10px; margin: 3px 0 1px;
+  border-radius: 8px; padding: 1px 10px; margin: 2px 0 1px;
 }
 .g-counter-label { font-size: 11px; letter-spacing: 1.4px; color: var(--amber); font-weight: 700; text-transform: uppercase; }
 .g-counter-value { font-size: 16px; font-weight: 800; color: var(--cream); }
@@ -262,7 +284,7 @@ body.view-missables .kicker { display: none; }
    in the stage, earned ones ticked green. */
 .stage-names { margin: 5px 0 0; line-height: 1.5; }
 .s-chip {
-  display: inline-block; font-size: 11px; color: var(--cream); background: var(--ink-2);
+  display: inline-block; font-size: 11.5px; color: var(--cream); background: var(--ink-2);
   border: 1px solid var(--line); border-radius: 10px; padding: 0 7px; margin: 1px 3px 1px 0; white-space: nowrap;
 }
 .s-chip.earned { color: var(--good); border-color: var(--good); }
@@ -274,15 +296,23 @@ body.view-missables .kicker { display: none; }
 .coverage-strip { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
 .coverage-strip h3 { margin: 0 0 4px; font-size: 13.5px; color: var(--amber-soft); }
 .coverage-rows { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 16px; }
-.cov { display: flex; gap: 8px; align-items: baseline; font-size: 12px; padding: 3px 0; border-bottom: 1px solid #1d3a44; }
+.cov { display: block; font-size: 12.5px; padding: 3px 0; border-bottom: 1px solid #1d3a44; }
+.cov-line { display: flex; gap: 8px; align-items: baseline; }
 .cov b { color: var(--cream); min-width: 82px; }
 .cov span { color: var(--cream-dim); }
 .cov .cov-read { margin-left: auto; color: var(--amber-soft); white-space: nowrap; }
+/* Full source URL under a coverage row (or, for Exophase, the honest
+   no-URL line with the Push Square fallback link). */
+.cov .cov-url, .coverage-page .cov-url {
+  display: block; font: 11px/1.3 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color: var(--amber-soft); overflow-wrap: anywhere; margin-top: 1px;
+}
+.cov .cov-url a, .coverage-page .cov-url a { color: var(--amber-soft); }
 .coverage-dispute { margin: 6px 0 0; font-size: 12px; color: var(--cream); background: #2c2410; border: 1px solid var(--amber); border-radius: 6px; padding: 5px 8px; line-height: 1.35; }
 .coverage-dispute b { color: var(--amber); }
 /* Page-prose citations (PlanetGTA6 on the missables page): one line per
    source, same shape as a coverage row, computed from pageCitations. */
-.coverage-page { display: flex; gap: 8px; align-items: baseline; font-size: 12px; padding: 3px 0; margin: 2px 0 0; border-bottom: 1px solid #1d3a44; color: var(--cream-dim); }
+.coverage-page { display: block; font-size: 12.5px; padding: 3px 0; margin: 2px 0 0; border-bottom: 1px solid #1d3a44; color: var(--cream-dim); }
 .coverage-page b { color: var(--cream); min-width: 82px; }
 .coverage-page .cov-read { margin-left: auto; color: var(--amber-soft); white-space: nowrap; }
 .saved-state { margin: 8px 0 0; font-size: 11.5px; color: var(--cream-dim); border-top: 1px solid var(--line); padding-top: 6px; }
@@ -328,7 +358,7 @@ body.view-missables .kicker { display: none; }
 /* Roadmap-only view: hide the tracker grid, banner, strip and toolbar (the
    cards carry the content), show all seven stage cards in two rows */
 body.view-roadmap .layout, body.view-roadmap .missable-banner, body.view-roadmap .roadmap-strip, body.view-roadmap .toolbar { display: none; }
-body.view-roadmap .roadmap-full { margin-top: 8px; padding: 3px 12px; }
+body.view-roadmap .roadmap-full { margin-top: 6px; padding: 2px 12px; }
 body.view-roadmap .view-nav { margin-bottom: 4px; }
 /* In the roadmap view the section title is redundant (the nav already
    says Roadmap) — hidden here only, to fund the coverage strip and the
@@ -345,12 +375,13 @@ body.view-roadmap .roadmap-facts-note { font-size: 11.5px; }
 body.view-roadmap .next-up { margin-bottom: 3px; padding: 3px 10px; font-size: 12px; }
 body.view-roadmap .missable-banner { display: none; }
 body.view-roadmap .stage-cards { grid-template-columns: repeat(4, 1fr); gap: 4px; }
-body.view-roadmap .stage-card { padding: 3px 6px; }
+body.view-roadmap .stage-card { padding: 2px 6px; }
 /* Blurbs hide in the roadmap view only — the name chips below them carry
    the stage's content, and the frame needs the room. */
 body.view-roadmap .stage-card .stage-blurb { display: none; }
-body.view-roadmap .stage-names { line-height: 1.27; margin-top: 3px; }
-body.view-roadmap .s-chip { font-size: 10.5px; padding: 0 6px; }
+body.view-roadmap .stage-names { line-height: 1.15; margin-top: 3px; }
+body.view-roadmap .cov .cov-url, body.view-roadmap .coverage-page .cov-url { font-size: 10px; }
+body.view-roadmap .s-chip { font-size: 11.5px; padding: 0 6px; }
 body.view-roadmap .stage-card h3 { font-size: 12px; white-space: nowrap; }
 body.view-roadmap .stage-card .stage-count { font-size: 11px; margin-bottom: 2px; }
 body.view-roadmap .stage-card .stage-blurb { font-size: 10.5px; line-height: 1.15; }
@@ -358,9 +389,9 @@ body.view-roadmap .stage-card .stage-counters { font-size: 10.5px; line-height: 
 body.view-roadmap .roadmap-facts .fact { font-size: 12px; padding: 1px 9px; }
 body.view-roadmap .coverage-strip { margin-top: 2px; padding-top: 2px; }
 body.view-roadmap .coverage-strip h3 { font-size: 12.5px; margin-bottom: 2px; }
-body.view-roadmap .cov { font-size: 11.5px; padding: 0; }
-body.view-roadmap .coverage-dispute { font-size: 11.5px; margin-top: 3px; padding: 4px 8px; }
-body.view-roadmap .coverage-page { font-size: 11.5px; padding: 0; margin-top: 0; }
+body.view-roadmap .cov { font-size: 12px; padding: 0; }
+body.view-roadmap .coverage-dispute { font-size: 11px; margin-top: 3px; padding: 3px 8px; }
+body.view-roadmap .coverage-page { font-size: 12px; padding: 0; margin-top: 0; }
 body.view-roadmap .saved-state { font-size: 11px; margin-top: 4px; padding-top: 3px; }
 
 /* Missables-only view: the argument gets the whole frame */
